@@ -1,6 +1,5 @@
 # BEIJ
 
-testing synchronization \n
-change made in browser \n
-\n
-Hello World this change was made in local
+Hello World from Isaac
+# Comment
+_/\_ Lookout for traffic cones
