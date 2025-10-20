@@ -1,8 +1,8 @@
 import uuid
 from typing import List, Dict, Any
 from fastapi import HTTPException
-from schemas.item import Item, ItemCreate, ItemUpdate
-from repositories.items_repo import load_all, save_all
+from app.schemas.item import Item, ItemCreate, ItemUpdate
+from app.repositories.items_repo import load_all, save_all
 
 
 def list_items() -> List[Item]:
