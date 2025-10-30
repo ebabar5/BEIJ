@@ -1,0 +1,24 @@
+Format: Online meeting
+Meeting Start: 4:05PM
+Meeting End: 4:20PM
+
+Attendance:
+-Eshan
+-Beab
+-Isaac
+-Logan - Delayed
+
+Topics:
+
+Communication:
+-RCS is working on Isaac's phone but we should make a second chat for backup
+-Second chat will be on Instagram
+
+Code:
+-We need to get coding.
+-Try to do some this weekend but midterms come first.
+-Some basic structure is done, should be merged to main before Monday.
+
+Next Meeting:
+-During the lab on Monday November 3rd
+-Everyone attend the lab as we will delegate tasks then
