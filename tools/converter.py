@@ -1,6 +1,8 @@
-import json, csv
+import csv
 
-#todo:
+'''
+Currently all data is strings. This could be modified later but we really need to start on the rest of the project
+'''
 
 filename = "test.csv"
 headers = []
@@ -28,7 +30,7 @@ with open(filename, newline='', encoding="Latin1") as csvfile:
             row[3] = row[3][3:]
             row[4] = row[4][3:]
             #Parse review info[user_id, user_name, review_id, review_content] into lists
-            for j in range(4):
+            for j in range(5):
 
                 row[j+9] = row[j+9].split(",")
             
@@ -75,9 +77,3 @@ with open(outputFile, "w", encoding="Latin1") as jsonOut:
         itemProperties.append("}")
         jsonOut.writelines(itemProperties)
     jsonOut.writelines("]")
-        
-        
-        
-
-
-

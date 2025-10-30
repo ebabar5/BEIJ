@@ -1,5 +1,5 @@
 from fastapi import FastAPI
-from app.routers.items import router as items_router
+from app.routers.products import router as products_router
 
 app = FastAPI()
 
@@ -11,4 +11,4 @@ def health():
 def hello():
     return {"msg": "Hello World"}
 
-app.include_router(items_router)
+app.include_router(products_router)
