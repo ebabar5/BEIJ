@@ -35,14 +35,14 @@ def create_product(payload: ProductCreate) -> Product:
 def get_product_by_id(product_id: str) -> Product:
     products = load_all()
     for it in products:
-        if it.get("id") == product_id:
+        if it.get("product_id") == product_id:
             return Product(**it)
     raise HTTPException(status_code=404, detail=f"Product '{product_id}' not found")
 
 def update_product(product_id: str, payload: ProductUpdate) -> Product:
     products = load_all()
     for idx, it in enumerate(products):
-        if it.get("id") == product_id:
+        if it.get("product_id") == product_id:
             updated = Product(
                 id=product_id,
                 product_name=payload.product_name.strip(),
@@ -67,7 +67,7 @@ def update_product(product_id: str, payload: ProductUpdate) -> Product:
 
 def delete_product(product_id: str) -> None:
     products = load_all()
-    new_products = [it for it in products if it.get("id") != product_id]
+    new_products = [it for it in products if it.get("product_id") != product_id]
     if len(new_products) == len(products):
         raise HTTPException(status_code=404, detail=f"Protect '{product_id}' not found")
     save_all(new_products)

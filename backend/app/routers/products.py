@@ -14,7 +14,7 @@ def get_products():
 def post_product(payload: ProductCreate):
     return create_product(payload)
 
-from app.services.products_service import list_products, create_product, get_product_by_id
+from app.services.product_service import list_products, create_product, get_product_by_id
 
 @router.get("/{product_id}", response_model=Product)
 def get_product(product_id: str):

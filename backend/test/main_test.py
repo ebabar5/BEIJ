@@ -8,15 +8,15 @@ def test_home():
     assert result.status_code == 200
     assert result.json() == {"msg": "Hello World"}
 
-from app.services.items_service import get_item_by_id
+from app.services.product_service import get_product_by_id
 def test_get_by_id():
-    #Test getting the "Soccer Balls" item id=="2"
-    result = get_item_by_id("2")
-    assert result.title == "Soccer Balls"
+    #Test getting a product by id and that its rating count matches value from json
+    result = get_product_by_id("B082LZGK39")
+    assert result.rating_count == "43,994"
 
 def test_invalid_id():
     #Test an invalid id
     import pytest
     from fastapi import HTTPException
     with pytest.raises(HTTPException):
-        get_item_by_id("42")
+        get_product_by_id("42")
