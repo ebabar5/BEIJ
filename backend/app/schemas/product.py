@@ -5,11 +5,11 @@ class Product(BaseModel):
     product_id: str
     product_name: str
     category: List[str] = []
-    discounted_price: str
-    actual_price: str
+    discounted_price: float
+    actual_price: float
     discount_percentage: str
-    rating: str
-    rating_count: str
+    rating: float
+    rating_count: int
     about_product: str
     user_id: List[str]
     user_name: List[str]
@@ -22,11 +22,11 @@ class Product(BaseModel):
 class ProductCreate(BaseModel):
     product_name: str
     category: List[str] = []
-    discounted_price: str
-    actual_price: str
+    discounted_price: float
+    actual_price: float
     discount_percentage: str
-    rating: str
-    rating_count: str
+    rating: float
+    rating_count: int
     about_product: str
     user_id: List[str] = []
     user_name: List[str] = []
@@ -39,11 +39,11 @@ class ProductCreate(BaseModel):
 class ProductUpdate(BaseModel):
     product_name: str
     category: List[str] = []
-    discounted_price: str
-    actual_price: str
+    discounted_price: float
+    actual_price: float
     discount_percentage: str
-    rating: str
-    rating_count: str
+    rating: float
+    rating_count: int
     about_product: str
     user_id: List[str] = []
     user_name: List[str] = []

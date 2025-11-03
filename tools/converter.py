@@ -1,8 +1,6 @@
-import csv
+import json, csv
 
-'''
-Currently all data is strings. This could be modified later but we really need to start on the rest of the project
-'''
+#todo:
 
 filename = "test.csv"
 headers = []
@@ -26,20 +24,33 @@ with open(filename, newline='', encoding="Latin1") as csvfile:
                 
             #Parse the category string into a list of category tags
             row[2] = row[2].split("|")
-            #remove currency characters from price fields
-            row[3] = row[3][3:]
-            row[4] = row[4][3:]
+            #remove currency characters from price fields, also remove commas
+            row[3] = float(row[3][3:].replace(",",""))
+            row[4] = float(row[4][3:].replace(",",""))
+
+            #remove currency characters from price fields, also remove commas
+
+            try:
+                row[6] = float(row[6].replace(",",""))
+            except Exception:
+                row[6] = 0.0
+            
+            if row[7].replace(",","")=="":
+                row[7] = 0
+            else:
+                row[7] = int(row[7].replace(",",""))
+            
             #Parse review info[user_id, user_name, review_id, review_content] into lists
-            for j in range(5):
+            for j in range(4):
 
                 row[j+9] = row[j+9].split(",")
             
             items.append(row)
         i += 1
-        '''limited to 5 items for testing
+        '''#limited to 5 items for testing
         if i>5:
             break
-        '''
+        #'''
 
 #json encoding
 with open(outputFile, "w", encoding="Latin1") as jsonOut:
@@ -71,9 +82,18 @@ with open(outputFile, "w", encoding="Latin1") as jsonOut:
                 comma = ","
                 if trailingcomma == False:
                     comma = ""
-                itemProperties.append("\"%s\":\"%s\"%s\n"%(headers[i],item[i],comma))
+                if(type(item[i]) is int) or (type(item[i]) is float):
+                    itemProperties.append("\"%s\":%s%s\n"%(headers[i],item[i],comma))
+                else:
+                    itemProperties.append("\"%s\":\"%s\"%s\n"%(headers[i],item[i],comma))
             
             
         itemProperties.append("}")
         jsonOut.writelines(itemProperties)
     jsonOut.writelines("]")
+        
+        
+        
+
+
+
