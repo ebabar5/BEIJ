@@ -1,0 +1,18 @@
+Note: This meeting was rescheduled from Friday Nov. 7th due to difficulty aligning
+Format: Meeting conducted over group text message due to aforementioned difficulties
+Meeting Start: 4:14PM
+meeting End: ~4:50PM
+
+
+Topics:
+
+Plan for work during reading break:
+- Continue working on assigned user stories.
+
+Pull requests/finishing features/code review:
+- Create a branch when working on a new user story
+- Create a pull request when the user story is done and needs to be merged to main
+- A second person needs to review and approve this request
+
+Workflow/GitHub automation:
+- Get this setup
