@@ -1,6 +1,7 @@
 from fastapi import FastAPI, HTTPException, Response
 from app.routers.products import router as products_router
 from app.routers.previews import router as preview_router
+from app.routers.users_routes import router as users_router
 from app.error_handling import register_errors
 
 app = FastAPI()
@@ -24,6 +25,7 @@ def favicon():
 
 app.include_router(products_router)
 app.include_router(preview_router)
+app.include_router(users_router)
 
 def catch_all(_full_path: str):
     raise HTTPException(status_code=404)

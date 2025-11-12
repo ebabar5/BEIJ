@@ -1,0 +1,14 @@
+[
+  {
+    "user_id": "68e1ec79-3385-4534-9594-c7d521846678",
+    "username": "testuser",
+    "email": "test@example.com",
+    "hashed_password": "$2b$12$W6l8EiZ5bvkBg6AqbTqbLeCmu5H.JgDuY6fNKTMNfSau0j80ksitC"
+  },
+  {
+    "user_id": "dcfa29eb-449b-4dd1-85df-f03bd4208f9e",
+    "username": "testuser2",
+    "email": "test2@example.com",
+    "hashed_password": "$2b$12$5Vn2gh4tj06CtZ9rAjYSUuFcg3Kmq/esqu8w7U53SMpVU1hpc0eca"
+  }
+]
