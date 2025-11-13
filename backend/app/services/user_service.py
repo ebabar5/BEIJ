@@ -6,17 +6,17 @@ from fastapi import HTTPException
 from typing import List
 
 def hash_password(password: str) -> str:
-    # bcrypt has a 72-byte limit, so truncate if necessary
+   
     password_bytes = password.encode('utf-8')
     if len(password_bytes) > 72:
         password_bytes = password_bytes[:72]
-    # Generate salt and hash the password
+    
     salt = bcrypt.gensalt()
     hashed = bcrypt.hashpw(password_bytes, salt)
     return hashed.decode('utf-8')
 
 def verify_password(password: str, hashed_password: str) -> bool:
-    # bcrypt has a 72-byte limit, so truncate if necessary
+   
     password_bytes = password.encode('utf-8')
     if len(password_bytes) > 72:
         password_bytes = password_bytes[:72]
