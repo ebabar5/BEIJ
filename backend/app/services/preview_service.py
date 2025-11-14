@@ -20,7 +20,6 @@ def get_all_product_previews() -> List[ProductPreview]:
 from app.services.filtering import filter_product_list
 
 def filter_previews(filter_string:str) -> List[ProductPreview]:
-    #TODO implement a 406 not acceptable error for malformed filter strings
     category_string = ""
     parts = filter_string.split("&")
     category_string = parts[0]
