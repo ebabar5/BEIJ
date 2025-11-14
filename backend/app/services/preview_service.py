@@ -28,12 +28,15 @@ def filter_previews(filter_string:str) -> List[ProductPreview]:
         if len(parts)>1:
             max = 0
             min = 0
-            rating = 0.0
-            if parts[1][:4] == "max=":
-                max = int(parts[1][4:])
-            if len(parts)>2:
+            #rating = 0.0 could add min rating filter later
+            for part in parts[1:]:
+                if part[:4] == "max=":
+                    max = int(part[4:])
+                    continue
                 if parts[2][:4] == "min=":
-                    min = int(parts[2][4:])
+                    min = int(part[4:])
+                    continue
+                
             filtered_products = filter_product_list(load_all(),category_string,min,max)
 
         else:
