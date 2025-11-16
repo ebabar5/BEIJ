@@ -1,4 +1,4 @@
-from app.schemas.user import User, UserCreate, UserResponse
+from app.schemas.user import User, UserCreate, UserResponse,UserLogin 
 from app.repositories.users_repo import load_all, save_all
 import uuid
 import bcrypt
@@ -38,3 +38,13 @@ def create_user(user_create:UserCreate) -> UserResponse:
 
 def list_users() -> List[UserResponse]:
     return [UserResponse(**it) for it in load_all()]
+
+def authenticate_user(user_login:UserLogin) -> UserResponse:
+    users=load_all()
+    user =next((it for it in users if it.get("username")==user_login.username_or_email or it.get("email")==user_login.username_or_email), None)
+    if user is None:
+        raise HTTPException(status_code=401, detail="Invalid credentials")
+    if not verify_password(user_login.password, user.get("hashed_password")):
+        raise HTTPException(status_code=401, detail="invalid credentials")
+    
+    return UserResponse(user_id=user["user_id"], username=user["username"], email=user["email"])
