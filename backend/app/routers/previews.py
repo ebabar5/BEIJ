@@ -9,3 +9,6 @@ router = APIRouter(prefix="/previews", tags=["previews"])
 def getPreviews():
     return get_all_product_previews()
 
+@router.get("/{fil}",response_model=List[ProductPreview])
+def filterPreviews(fil:str=""):
+    return filter_previews(fil)
