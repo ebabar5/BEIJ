@@ -1,0 +1,22 @@
+Format: In-Lab Meeting
+Meeting Start: 2:20PM
+Meeting End: 2:35PM
+
+Attendance:
+-Logan
+-Eshan
+-Beab
+-Isaac
+
+
+Topics:
+-Eschan has highest permission on github > setup testing workflow on github
+
+-Task Delegation:
+-Isaac > Filtering
+-Beab > Login Features[backend]
+-Eshan > Mid-point between fornt/backend
+-Logan > Saving items to list
+
+Next meeting:
+Friday Nov 7th: Topic: task delegation and handling over reading break

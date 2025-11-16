@@ -1,0 +1,27 @@
+Format: Online meeting
+Meeting Start: 3:25PM
+Meeting End: 3:40PM
+
+Attendance:
+- Beab
+- Logan
+- Eshan
+- Isaac
+
+Topics:
+Meeting notes:
+-need to do this. They will be text files added to a folder on GitHub
+
+M2 work division:
+Beab: -High-level architecture and justification
+Logan: -Design patterns
+Eshan: -data-flow and component diagrams
+Isaac: -Class diagram and use case diagrams
+Shared work: Traceability 
+
+Project Coding:
+- we need to start coding. Focus on M2 first then start coding
+
+
+Next Meeting:
+-Oct. 23rd
