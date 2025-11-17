@@ -1,0 +1,50 @@
+Format: In-Lab Meeting
+Meeting Start: 2:10PM
+Meeting End: 2:30PM
+
+Attendance:
+-Logan
+-Eshan
+-Isaac
+
+Absences:
+-Beab(gave prior notification of absence)
+
+Topics: M3 Midpoint Submission
+
+Expected state of code:
+- Core features
+- RESTful endpoints
+- documentation through fastAPI
+not all code on the backend has to be done but the basics should be there
+    - we are here for functionallity we need to focus on the other points for M3
+
+What we still need to do:
+- Testing:
+    - Minimum unit and integration Testing
+    - Evidence of test execution (screenshots/reports)
+    - "Each student must have at least 10 pull requests showcasing this variety of testing methods."
+
+- Quality Assurance:
+    - Github actions -> need to setup pipeline
+
+- Refactoring:
+    - 5 pull requests per member
+
+- Deployment(Basic):
+    - Need to demonstrate running the backend in a environment for the demo
+
+Other Notes:
+    - Our pull requests to date seem to be larger than expected from the evaluation. Try splitting them into smaller chunks going forward if applicable
+
+Task Delegation:
+Everyone:
+    - Write some tests
+    - Do some Refactoring
+
+Deployment: Eshan
+    - Needed for demo on Monday(not due with report)
+
+Github Action: Isaac
+
+Refer to M3 - Midpoint Project Submission on canvas for detailed criteria
