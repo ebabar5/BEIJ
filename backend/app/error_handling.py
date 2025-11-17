@@ -41,6 +41,10 @@ def register_errors(app):
         if exc.status_code == 400:
             e = BadRequest()
             return JSONResponse(status_code = e.status_code, content = {"message": e.message, "code": e.code})
+        return JSONResponse(
+            status_code = exc.status_code,
+            content = {"message": exc.detail, "code": f"http_{exc.status_code}"}
+        )
         
     # AppError for preventing info getting to users 
     @app.exception_handler(Exception)
