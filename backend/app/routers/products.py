@@ -1,7 +1,7 @@
 from fastapi import APIRouter, status, Query 
 from typing import List, Optional 
 from app.schemas.product import Product, ProductCreate, ProductUpdate
-from app.services.product_service import list_products, create_product, delete_product, update_product
+from app.services.product_service import list_products, create_product, delete_product, update_product, get_product_by_id
 
 router = APIRouter(prefix="/products", tags=["products"])
 
