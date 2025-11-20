@@ -1,5 +1,6 @@
-from app.schemas.user import User, UserCreate, UserResponse,UserLogin 
+from app.schemas.user import User, UserCreate, UserResponse, UserLogin, LoginResponse
 from app.repositories.users_repo import load_all, save_all
+from app.services.token_service import generate_token
 import uuid
 import bcrypt
 from fastapi import HTTPException
@@ -39,12 +40,19 @@ def create_user(user_create:UserCreate) -> UserResponse:
 def list_users() -> List[UserResponse]:
     return [UserResponse(**it) for it in load_all()]
 
-def authenticate_user(user_login:UserLogin) -> UserResponse:
-    users=load_all()
-    user =next((it for it in users if it.get("username")==user_login.username_or_email or it.get("email")==user_login.username_or_email), None)
+def authenticate_user(user_login: UserLogin) -> LoginResponse:
+    users = load_all()
+    user = next((it for it in users if it.get("username") == user_login.username_or_email or it.get("email") == user_login.username_or_email), None)
     if user is None:
         raise HTTPException(status_code=401, detail="Invalid credentials")
     if not verify_password(user_login.password, user.get("hashed_password")):
         raise HTTPException(status_code=401, detail="invalid credentials")
     
-    return UserResponse(user_id=user["user_id"], username=user["username"], email=user["email"])
+    user_response = UserResponse(user_id=user["user_id"], username=user["username"], email=user["email"])
+    token_data = generate_token(user["user_id"], user["username"], user["email"], user_login.remember_me)
+    
+    return LoginResponse(
+        user=user_response,
+        token=token_data["token"],
+        expires_in=token_data["expires_in"]
+    )
