@@ -12,6 +12,7 @@ from app.services.product_service import get_product_by_id
 def test_get_by_id():
     #Test getting a product by id and that its rating count matches value from json
     result = get_product_by_id("B082LZGK39")
+    assert isinstance(result.rating_count, int)
     assert result.rating_count == 43994
 
 def test_invalid_id():

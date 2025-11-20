@@ -1,20 +1,25 @@
-from fastapi import APIRouter, status
-from typing import List
+from fastapi import APIRouter, status, Query 
+from typing import List, Optional 
 from app.schemas.product import Product, ProductCreate, ProductUpdate
-from app.services.product_service import list_products, create_product, delete_product, update_product
+from app.services.product_service import list_products, create_product, delete_product, update_product, get_product_by_id
 
 router = APIRouter(prefix="/products", tags=["products"])
 
 @router.get("", response_model=List[Product])
-def get_products():
-    return list_products()
+def get_products(
+    sort_by: Optional[str] = Query 
+    (default = None, 
+        description = ("Optional sort order, "
+        "Supported values: name, price_asc, price_desc, rating_desc"),
+    )
+):
+    return list_products(sort_by = sort_by)
 
 #simple post the payload (is the body of the request)
 @router.post("", response_model=Product, status_code=201)
 def post_product(payload: ProductCreate):
     return create_product(payload)
 
-from app.services.product_service import list_products, create_product, get_product_by_id
 
 @router.get("/{product_id}", response_model=Product)
 def get_product(product_id: str):
