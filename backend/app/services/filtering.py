@@ -6,8 +6,14 @@ def filter_product_list(target:List[Product],cat_string:str,min_price:int=0,max_
     #Convert any negative values to zero
     max_price = max(max_price,0)
     min_price = max(min_price,0)
-
-    if min_price > max_price:
+    #If only a min or max is given the other value should be ignored
+    no_min = False
+    no_max = False
+    if min_price == 0 and max_price != 0:
+        no_min = True
+    elif max_price == 0 and min_price != 0:
+        no_max = True
+    elif min_price > max_price:
         temp = max_price
         max_price = min_price
         min_price = temp
@@ -32,7 +38,11 @@ def filter_product_list(target:List[Product],cat_string:str,min_price:int=0,max_
     else:
         for product in cat_filtered:
             price = product["discounted_price"]
-            if price <= max_price and price >= min_price:
+            if no_max and price >= min_price:
+                result.append(product)
+            elif no_min and price <= max_price:
+                result.append(product)
+            elif price <= max_price and price >= min_price:
                 result.append(product)
 
     return result

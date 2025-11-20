@@ -33,7 +33,7 @@ def filter_previews(filter_string:str) -> List[ProductPreview]:
                 if part[:4] == "max=":
                     max = int(part[4:])
                     continue
-                if parts[2][:4] == "min=":
+                if part[:4] == "min=":
                     min = int(part[4:])
                     continue
                 
