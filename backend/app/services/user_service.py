@@ -1,10 +1,12 @@
 from app.schemas.user import User, UserCreate, UserResponse, UserLogin, LoginResponse
 from app.repositories.users_repo import load_all, save_all
+from app.repositories.products_repo import load_all as load_products
 from app.services.token_service import generate_token
+from app.error_handling import NotFound, BadRequest
 import uuid
 import bcrypt
 from fastapi import HTTPException
-from typing import List
+from typing import List, Dict, Any
 
 def hash_password(password: str) -> str:
    
@@ -56,3 +58,56 @@ def authenticate_user(user_login: UserLogin) -> LoginResponse:
         token=token_data["token"],
         expires_in=token_data["expires_in"]
     )
+
+def find_user(users: List[Dict[str, Any]], user_id: str) -> Dict[str, Any] | None:
+    return next((u for u in users if u.get("user_id") == user_id), None)
+
+def find_product(products: List[Dict[str, Any]], product_id: str) -> Dict[str, Any] | None:
+    return next(
+        ( p for p in products
+         if p.get("id") == product_id
+         or p.get("product_id") == product_id
+         or p.get("asin") == product_id), None
+        )
+
+# add the product id to saved item ids to show user & product exist 
+def save_item(user_id: str, product_id: str) -> List[str]:
+    users = load_all()
+    user = find_user(users, user_id)
+    if user is None:
+        raise NotFound(f"User '{user_id}' not found.")
+
+    products = load_products()
+    product = find_product(products, product_id)
+    if product is None:
+        raise NotFound(f"Product '{product_id}' not found.")
+
+    saved_ids = user.get("saved_item_ids") or []
+    if product_id not in saved_ids:
+        saved_ids.append(product_id)
+        user["saved_item_ids"] = saved_ids
+        save_all(users)
+    return saved_ids # return the newly updated saved item ids 
+
+# remove product id from the users saved item ids 
+def unsave_item(user_id: str, product_id: str) -> List[str]:
+    users = load_all()
+    user = find_user(users, user_id)
+    if user is None:
+        raise NotFound(f"User '{user_id}' not found.")
+
+    saved_ids = user.get("saved_item_ids") or []
+    if product_id in saved_ids:
+        saved_ids.remove(product_id)
+        user["saved_item_ids"] = saved_ids
+        save_all(users)
+    return saved_ids
+
+# return the saved ids of items for the user 
+def get_saved_item_ids(user_id: str) -> List[str]:
+    users = load_all()
+    user = find_user(users, user_id) 
+    if user is None: 
+        raise NotFound(f"User '{user_id}' not found.")
+    return user.get("saved_item_ids") or []
+
