@@ -3,45 +3,7 @@ import pytest
 from fastapi import HTTPException
 
 from app.services.product_service import list_products
-
-SAMPLE_PRODUCTS = [
-    {
-        "product_id": "random",
-        "product_name": "New Product",
-        "category": ["shoes"],
-        "discounted_price": 10.0,
-        "actual_price": 20.0,
-        "discount_percentage": "50%",
-        "rating": 4.0,
-        "rating_count": 5,
-        "about_product": "desc",
-        "user_id": ["u1"],
-        "user_name": ["User 1"],
-        "review_id": ["r1"],
-        "review_title": ["Nice"],
-        "review_content": "ok",
-        "img_link": "http://random.com/a",
-        "product_link": "http://random.com/a",
-    },
-    {
-        "product_id": "random2",
-        "product_name": "Old Product",
-        "category": ["shoes"],
-        "discounted_price": 30.0,
-        "actual_price": 10.0,
-        "discount_percentage": "25%",
-        "rating": 4.0,
-        "rating_count": 10,
-        "about_product": "desc",
-        "user_id": ["u1"],
-        "user_name": ["User 1"],
-        "review_id": ["r2"],
-        "review_title": ["Good"],
-        "review_content": "ok",
-        "img_link": "http://random.com/b",
-        "product_link": "http://random.com/b",
-    },
-]
+from test.dummy_data.dummy_products import SAMPLE_PRODUCTS
 
 @patch("app.services.product_service.load_all")
 def test_list_products_sort_by_price_asc(mock_load_all):

@@ -5,7 +5,6 @@ Tests the _normalize_rating_count utility function that converts
 various input formats to clean integer values for rating counts.
 """
 
-import pytest
 from app.services.product_service import _normalize_rating_count
 
 
