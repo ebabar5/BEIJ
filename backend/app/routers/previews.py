@@ -24,12 +24,20 @@ def no_search_entry():
 #wide search
 @router.get("/search/w={search_string}",response_model=List[ProductPreview])
 def keywordSearch(search_string:str):
-    keywords = search_string.split(" ")
-    return parse_to_previews(keyword_search(keywords))
+    splice = search_string.split("&",1)
+    keywords = splice[0].split(" ")
+    if len(splice)>1:
+        return parse_to_previews(keyword_search(keywords,filter=splice[1]))
+    else:
+        return parse_to_previews(keyword_search(keywords))
 
 #strict search[default]
 @router.get("/search/{search_string}",response_model=List[ProductPreview])
 def keywordSearch(search_string:str):
-    keywords = search_string.split(" ")
-    return parse_to_previews(keyword_search(keywords,strict=True))
+    splice = search_string.split("&",1)
+    keywords = splice[0].split(" ")
+    if len(splice)>1:
+        return parse_to_previews(keyword_search(keywords,filter=splice[1]))
+    else:
+        return parse_to_previews(keyword_search(keywords))
 #'''
