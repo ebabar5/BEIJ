@@ -34,6 +34,23 @@ class BackendClient:
             await self.client.aclose()
             self.client = None
     
+    def _handle_request_errors(self, endpoint: str, error: Exception):
+        """Handle common HTTP request errors"""
+        if isinstance(error, httpx.TimeoutException):
+            logger.error(f"Timeout calling backend: {endpoint}")
+            raise HTTPException(status_code=504, detail="Backend service timeout")
+        elif isinstance(error, httpx.HTTPStatusError):
+            logger.error(f"Backend HTTP error: {error.response.status_code} - {endpoint}")
+            # Forward the backend error status and message
+            try:
+                error_detail = error.response.json()
+            except:
+                error_detail = {"message": "Backend service error"}
+            raise HTTPException(status_code=error.response.status_code, detail=error_detail)
+        else:
+            logger.error(f"Unexpected error calling backend: {error}")
+            raise HTTPException(status_code=503, detail="Backend service unavailable")
+    
     async def get(self, endpoint: str, params: Optional[Dict] = None) -> Dict[str, Any]:
         """Make GET request to backend"""
         try:
@@ -45,20 +62,8 @@ class BackendClient:
             
             return response.json()
             
-        except httpx.TimeoutException:
-            logger.error(f"Timeout calling backend: {endpoint}")
-            raise HTTPException(status_code=504, detail="Backend service timeout")
-        except httpx.HTTPStatusError as e:
-            logger.error(f"Backend HTTP error: {e.response.status_code} - {endpoint}")
-            # Forward the backend error status and message
-            try:
-                error_detail = e.response.json()
-            except:
-                error_detail = {"message": "Backend service error"}
-            raise HTTPException(status_code=e.response.status_code, detail=error_detail)
         except Exception as e:
-            logger.error(f"Unexpected error calling backend: {e}")
-            raise HTTPException(status_code=503, detail="Backend service unavailable")
+            self._handle_request_errors(endpoint, e)
     
     async def post(self, endpoint: str, data: Dict[str, Any], params: Optional[Dict] = None) -> Dict[str, Any]:
         """Make POST request to backend"""
@@ -71,19 +76,8 @@ class BackendClient:
             
             return response.json()
             
-        except httpx.TimeoutException:
-            logger.error(f"Timeout calling backend: {endpoint}")
-            raise HTTPException(status_code=504, detail="Backend service timeout")
-        except httpx.HTTPStatusError as e:
-            logger.error(f"Backend HTTP error: {e.response.status_code} - {endpoint}")
-            try:
-                error_detail = e.response.json()
-            except:
-                error_detail = {"message": "Backend service error"}
-            raise HTTPException(status_code=e.response.status_code, detail=error_detail)
         except Exception as e:
-            logger.error(f"Unexpected error calling backend: {e}")
-            raise HTTPException(status_code=503, detail="Backend service unavailable")
+            self._handle_request_errors(endpoint, e)
     
     async def put(self, endpoint: str, data: Dict[str, Any], params: Optional[Dict] = None) -> Dict[str, Any]:
         """Make PUT request to backend"""
@@ -96,19 +90,8 @@ class BackendClient:
             
             return response.json()
             
-        except httpx.TimeoutException:
-            logger.error(f"Timeout calling backend: {endpoint}")
-            raise HTTPException(status_code=504, detail="Backend service timeout")
-        except httpx.HTTPStatusError as e:
-            logger.error(f"Backend HTTP error: {e.response.status_code} - {endpoint}")
-            try:
-                error_detail = e.response.json()
-            except:
-                error_detail = {"message": "Backend service error"}
-            raise HTTPException(status_code=e.response.status_code, detail=error_detail)
         except Exception as e:
-            logger.error(f"Unexpected error calling backend: {e}")
-            raise HTTPException(status_code=503, detail="Backend service unavailable")
+            self._handle_request_errors(endpoint, e)
     
     async def delete(self, endpoint: str, params: Optional[Dict] = None) -> Optional[Dict[str, Any]]:
         """Make DELETE request to backend"""
@@ -128,19 +111,8 @@ class BackendClient:
             except:
                 return None
                 
-        except httpx.TimeoutException:
-            logger.error(f"Timeout calling backend: {endpoint}")
-            raise HTTPException(status_code=504, detail="Backend service timeout")
-        except httpx.HTTPStatusError as e:
-            logger.error(f"Backend HTTP error: {e.response.status_code} - {endpoint}")
-            try:
-                error_detail = e.response.json()
-            except:
-                error_detail = {"message": "Backend service error"}
-            raise HTTPException(status_code=e.response.status_code, detail=error_detail)
         except Exception as e:
-            logger.error(f"Unexpected error calling backend: {e}")
-            raise HTTPException(status_code=503, detail="Backend service unavailable")
+            self._handle_request_errors(endpoint, e)
 
 # Global client instance
 backend_client = BackendClient()
