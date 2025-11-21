@@ -1,5 +1,5 @@
 import uuid
-from typing import List, Dict, Any
+from typing import List, Dict, Any, Optional 
 from fastapi import HTTPException
 from app.schemas.product import Product, ProductCreate, ProductUpdate
 from app.repositories.products_repo import load_all, save_all
@@ -25,10 +25,30 @@ def with_placeholders(rec: Dict[str, Any]) -> Dict[str, Any]:
     return out
 
 
-def list_products() -> List[Product]:
+def list_products(sort_by: Optional[str] = None) -> List[Product]:
     items = [Product(**with_placeholders(it)) for it in load_all()]
-    items.sort(key = lambda p: p.product_name.lower())
-    return items
+    if sort_by is None or sort_by == "name":
+        return sorted(items, key = lambda p: p.product_name.lower())
+
+    if sort_by == "price_asc":
+        return sorted(items, key = lambda p: p.discounted_price)
+
+    if sort_by == "price_desc":
+        return sorted(items, key = lambda p: p.discounted_price, reverse = True)
+
+    if sort_by == "rating_desc": # put higher rating first
+        return sorted(
+            items,
+            key = lambda p: (p.rating, p.rating_count), # if same, put rating_count first
+            reverse = True,
+        )
+    raise HTTPException(
+        status_code = 400,
+        detail = (f"There is an issue with sort_by '{sort_by}'. "
+        "Support values: name, price_asc, price_desc, rating_desc."
+        ),
+    )
+
 
 def create_product(payload: ProductCreate) -> Product:
     products = load_all()
