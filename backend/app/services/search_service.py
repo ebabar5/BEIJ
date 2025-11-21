@@ -28,8 +28,8 @@ def keyword_search(keywords:List[str],strict:bool=False,filter:str|None=None) ->
                 
         products = filter_product_list(products,category_string,min,max)
                 
-
     for product in products:
+        #Uses spaces and commas to divide listing names, search should be case insensitive
         first_split = set(it.lower() for it in product["product_name"].split(" "))
         name_check = list()
 
