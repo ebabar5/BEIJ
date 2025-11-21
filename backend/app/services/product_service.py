@@ -85,7 +85,7 @@ def list_products(sort_by: Optional[str] = None) -> List[Product]:
 # create function for central product creation to remove duplication
 def _build_product(product_id: str, payload: ProductCreate | ProductUpdate) -> Product:
     return Product(
-        id=product_id,
+        product_id=product_id,
         product_name=payload.product_name.strip(),
         category=payload.category,
         discounted_price=payload.discounted_price,
@@ -107,7 +107,7 @@ def create_product(payload: ProductCreate) -> Product:
     new_id = str(uuid.uuid4())
 
     # keep original collision check as-is
-    if any(it.get("id") == new_id for it in products): # extremely unlikely, but consistent check
+    if any(it.get("product_id") == new_id for it in products): # extremely unlikely, but consistent check
         raise HTTPException(status_code=409, detail="ID collision; retry.")
 
     new_product = _build_product(new_id, payload)
