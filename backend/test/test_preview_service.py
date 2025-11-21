@@ -20,6 +20,7 @@ from fastapi import HTTPException
 from app.services.preview_service import parse_to_previews, get_all_product_previews, filter_previews
 from app.schemas.product_preview import ProductPreview
 from test.dummy_data.dummy_products import SAMPLE_FULL_PRODUCTS
+from app.services.filtering import parse_filter_string
 
 
 class TestPreviewService:
@@ -115,10 +116,11 @@ class TestPreviewService:
         electronics_products = [SAMPLE_FULL_PRODUCTS[0], SAMPLE_FULL_PRODUCTS[1]]
         mock_filter.return_value = electronics_products
         
-        previews = filter_previews("electronics")
-        
+        fil_string = "electronics"
+        previews = filter_previews(fil_string)
+        fil_dict = parse_filter_string(fil_string)
         # Should call filter_product_list with category only
-        mock_filter.assert_called_once_with(SAMPLE_FULL_PRODUCTS, "electronics")
+        mock_filter.assert_called_once_with(SAMPLE_FULL_PRODUCTS, **fil_dict)
         
         # Should return filtered previews
         assert len(previews) == 2
@@ -134,10 +136,12 @@ class TestPreviewService:
         filtered_products = [SAMPLE_FULL_PRODUCTS[1]]  # Wireless Mouse ($25)
         mock_filter.return_value = filtered_products
         
-        previews = filter_previews("electronics&max=30&min=20")
+        fil_string = "electronics&max=30&min=20"
+        previews = filter_previews(fil_string)
+        fil_dict = parse_filter_string(fil_string)
         
         # The code correctly parses both max and min when in this order
-        mock_filter.assert_called_once_with(SAMPLE_FULL_PRODUCTS, "electronics", 20, 30)
+        mock_filter.assert_called_once_with(SAMPLE_FULL_PRODUCTS, **fil_dict)
         
         # Should return filtered previews
         assert len(previews) == 1
@@ -152,10 +156,12 @@ class TestPreviewService:
         filtered_products = [SAMPLE_FULL_PRODUCTS[1], SAMPLE_FULL_PRODUCTS[2]]
         mock_filter.return_value = filtered_products
         
-        previews = filter_previews("all&max=100")
+        fil_string = "all&max=100"
+        previews = filter_previews(fil_string)
+        fil_dict = parse_filter_string(fil_string)
         
         # Should call filter with min=0 (default) and max=100
-        mock_filter.assert_called_once_with(SAMPLE_FULL_PRODUCTS, "all", 0, 100)
+        mock_filter.assert_called_once_with(SAMPLE_FULL_PRODUCTS, **fil_dict)
         
         assert len(previews) == 2
 
@@ -194,9 +200,11 @@ class TestPreviewService:
         mock_load_all.return_value = SAMPLE_FULL_PRODUCTS
         mock_filter.return_value = []  # No products match filter
         
-        previews = filter_previews("nonexistent_category")
+        fil_string = "nonexistent_category"
+        previews = filter_previews(fil_string)
+        fil_dict = parse_filter_string(fil_string)
         
-        mock_filter.assert_called_once_with(SAMPLE_FULL_PRODUCTS, "nonexistent_category")
+        mock_filter.assert_called_once_with(SAMPLE_FULL_PRODUCTS, **fil_dict)
         assert previews == []
 
     def test_preview_data_integrity(self):
