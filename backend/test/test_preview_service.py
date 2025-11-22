@@ -167,16 +167,21 @@ class TestPreviewService:
 
     @patch('app.services.preview_service.filter_product_list')
     @patch('app.services.preview_service.load_all')
-    def test_filter_previews_min_price_only_raises_exception(self, mock_load_all, mock_filter):
-        """Test filtering previews with min price only raises exception due to bug in original code"""
+    def test_filter_previews_min_price_only_filters_correctly(self, mock_load_all, mock_filter):
+        """Min-price-only filter should NOT raise; it should filter correctly."""
         mock_load_all.return_value = SAMPLE_FULL_PRODUCTS
-        
-        # Due to bug in original code (parts[2] instead of part), this raises an exception
-        with pytest.raises(HTTPException) as exc_info:
-            filter_previews("electronics&min=500")
-        
-        assert exc_info.value.status_code == 406
-        assert "Malformed Filter Request" in str(exc_info.value.detail)
+
+        # mock filter output so preview generation continues
+        mock_filter.return_value = SAMPLE_FULL_PRODUCTS
+
+        result = filter_previews("electronics&min=500")
+        fil_dict = parse_filter_string("electronics&min=500")
+
+        # should call filter_product_list with min only
+        mock_filter.assert_called_once_with(SAMPLE_FULL_PRODUCTS, **fil_dict)
+
+        assert isinstance(result, list)
+
 
     @patch('app.services.preview_service.load_all')
     def test_filter_previews_malformed_request_raises_exception(self, mock_load_all):

@@ -1,23 +1,25 @@
+import pytest
+from fastapi import HTTPException
 from fastapi.testclient import TestClient
+
 from app.main import app
+from app.services.product_service import get_product_by_id
 
-client = TestClient(app)
+@pytest.fixture
+def client():
+    return TestClient(app)
 
-def test_home():
+def test_home(client):
     result = client.get("/hello")
     assert result.status_code == 200
     assert result.json() == {"msg": "Hello World"}
 
-from app.services.product_service import get_product_by_id
 def test_get_by_id():
-    #Test getting a product by id and that its rating count matches value from json
     result = get_product_by_id("B082LZGK39")
     assert isinstance(result.rating_count, int)
     assert result.rating_count == 43994
 
-def test_invalid_id():
-    #Test an invalid id
-    import pytest
-    from fastapi import HTTPException
+@pytest.mark.parametrize("bad_id", ["42"])
+def test_invalid_id(bad_id):
     with pytest.raises(HTTPException):
-        get_product_by_id("42")
+        get_product_by_id(bad_id)
