@@ -106,7 +106,7 @@ def create_product(payload: ProductCreate) -> Product:
         raise HTTPException(status_code=CONFLICT, detail="ID collision; retry.")
 
     new_product = _build_product(new_id, payload)
-    products.append(new_product.dict())
+    products.append(new_product.model_dump())
     save_all(products)
     return new_product
 
@@ -122,7 +122,7 @@ def update_product(product_id: str, payload: ProductUpdate) -> Product:
     for idx, it in enumerate(products):
         if it.get("product_id") == product_id:
             updated = _build_product(product_id, payload)
-            products[idx] = updated.dict()
+            products[idx] = updated.model_dump()
             save_all(products)
             return updated
     raise HTTPException(status_code=NOT_FOUND, detail=f"Product '{product_id}' not found")
