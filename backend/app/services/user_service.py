@@ -32,7 +32,7 @@ def create_user(user_create:UserCreate) -> UserResponse:
     new_id = str(uuid.uuid4())
     hashed_pwd = hash_password(user_create.password)
     new_user = User(user_id=new_id, username=user_create.username.strip(), email=user_create.email, hashed_password=hashed_pwd, is_admin=False)
-    users.append(new_user.dict())
+    users.append(new_user.model_dump())
     save_all(users)
     return UserResponse(user_id=new_user.user_id, username=new_user.username, email=new_user.email, is_admin=False)
 
