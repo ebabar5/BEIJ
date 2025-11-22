@@ -79,3 +79,4 @@ class TestCategoryParsing:
         result = filter_product_list(self.SAMPLE_PRODUCTS, "nonexistent")
         
         assert len(result) == 0
+

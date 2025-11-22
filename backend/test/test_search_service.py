@@ -24,7 +24,7 @@ def test_search_filtered():
 
 #Test that the router calls the method and returns an expected result
 def test_previews_search_routing():
-    response = client.get("/previews/search/4k&HDMICables")
+    response = client.get("/api/v1/previews/search/4k&HDMICables")
     assert response.status_code == 200
     #Search is case insensitive so we need to check both 4k and 4K
     assert "4K" in response.json()[0]["product_name"] or "4k" in response.json()[0]["product_name"]

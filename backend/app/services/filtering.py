@@ -2,8 +2,6 @@ from app.schemas.product import Product
 from typing import List, Dict
 
 def filter_product_list(target:List[Product],cat_string:str,min_price:int=0,max_price:int=0):
-
-    #Convert any negative values to zero
     max_price = max(max_price,0)
     min_price = max(min_price,0)
     #If only a min or max is given the other value should be ignored
