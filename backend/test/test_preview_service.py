@@ -19,72 +19,19 @@ from unittest.mock import patch, MagicMock
 from fastapi import HTTPException
 from app.services.preview_service import parse_to_previews, get_all_product_previews, filter_previews
 from app.schemas.product_preview import ProductPreview
+from test.dummy_data.dummy_products import SAMPLE_FULL_PRODUCTS
+from app.services.filtering import parse_filter_string
 
 
 class TestPreviewService:
     """Test suite for product preview service functionality"""
 
     # Sample full product data (what comes from repository)
-    SAMPLE_FULL_PRODUCTS = [
-        {
-            "product_id": "prod1",
-            "product_name": "Gaming Laptop",
-            "category": ["electronics", "computers"],
-            "discounted_price": 800.0,
-            "actual_price": 1000.0,
-            "discount_percentage": "20%",
-            "rating": 4.5,
-            "rating_count": 150,
-            "about_product": "High-performance gaming laptop",
-            "user_id": ["u1"],
-            "user_name": ["John"],
-            "review_id": ["r1"],
-            "review_title": ["Great laptop"],
-            "review_content": "Excellent performance",
-            "img_link": "http://example.com/laptop.jpg",
-            "product_link": "http://example.com/laptop"
-        },
-        {
-            "product_id": "prod2",
-            "product_name": "Wireless Mouse",
-            "category": ["electronics", "accessories"],
-            "discounted_price": 25.0,
-            "actual_price": 35.0,
-            "discount_percentage": "29%",
-            "rating": 4.2,
-            "rating_count": 89,
-            "about_product": "Ergonomic wireless mouse",
-            "user_id": ["u2"],
-            "user_name": ["Jane"],
-            "review_id": ["r2"],
-            "review_title": ["Good mouse"],
-            "review_content": "Works well",
-            "img_link": "http://example.com/mouse.jpg",
-            "product_link": "http://example.com/mouse"
-        },
-        {
-            "product_id": "prod3",
-            "product_name": "Running Shoes",
-            "category": ["footwear", "sports"],
-            "discounted_price": 60.0,
-            "actual_price": 80.0,
-            "discount_percentage": "25%",
-            "rating": 4.8,
-            "rating_count": 200,
-            "about_product": "Comfortable running shoes",
-            "user_id": ["u3"],
-            "user_name": ["Bob"],
-            "review_id": ["r3"],
-            "review_title": ["Amazing shoes"],
-            "review_content": "Very comfortable",
-            "img_link": "http://example.com/shoes.jpg",
-            "product_link": "http://example.com/shoes"
-        }
-    ]
+    
 
     def test_parse_to_previews_success(self):
         """Test successful conversion of full products to previews"""
-        previews = parse_to_previews(self.SAMPLE_FULL_PRODUCTS)
+        previews = parse_to_previews(SAMPLE_FULL_PRODUCTS)
         
         # Should return list of ProductPreview objects
         assert len(previews) == 3
@@ -113,7 +60,7 @@ class TestPreviewService:
 
     def test_parse_to_previews_single_product(self):
         """Test parsing single product works correctly"""
-        single_product = [self.SAMPLE_FULL_PRODUCTS[0]]
+        single_product = [SAMPLE_FULL_PRODUCTS[0]]
         previews = parse_to_previews(single_product)
         
         assert len(previews) == 1
@@ -125,7 +72,7 @@ class TestPreviewService:
 
     def test_parse_to_previews_only_required_fields(self):
         """Test that previews only contain the 4 required fields"""
-        previews = parse_to_previews(self.SAMPLE_FULL_PRODUCTS)
+        previews = parse_to_previews(SAMPLE_FULL_PRODUCTS)
         
         for preview in previews:
             # Check that preview object only has the expected fields
@@ -136,7 +83,7 @@ class TestPreviewService:
     @patch('app.services.preview_service.load_all')
     def test_get_all_product_previews_success(self, mock_load_all):
         """Test getting all product previews from repository"""
-        mock_load_all.return_value = self.SAMPLE_FULL_PRODUCTS
+        mock_load_all.return_value = SAMPLE_FULL_PRODUCTS
         
         previews = get_all_product_previews()
         
@@ -164,15 +111,16 @@ class TestPreviewService:
     @patch('app.services.preview_service.load_all')
     def test_filter_previews_category_only(self, mock_load_all, mock_filter):
         """Test filtering previews by category only"""
-        mock_load_all.return_value = self.SAMPLE_FULL_PRODUCTS
+        mock_load_all.return_value = SAMPLE_FULL_PRODUCTS
         # Mock filter to return electronics products
-        electronics_products = [self.SAMPLE_FULL_PRODUCTS[0], self.SAMPLE_FULL_PRODUCTS[1]]
+        electronics_products = [SAMPLE_FULL_PRODUCTS[0], SAMPLE_FULL_PRODUCTS[1]]
         mock_filter.return_value = electronics_products
         
-        previews = filter_previews("electronics")
-        
+        fil_string = "electronics"
+        previews = filter_previews(fil_string)
+        fil_dict = parse_filter_string(fil_string)
         # Should call filter_product_list with category only
-        mock_filter.assert_called_once_with(self.SAMPLE_FULL_PRODUCTS, "electronics")
+        mock_filter.assert_called_once_with(SAMPLE_FULL_PRODUCTS, **fil_dict)
         
         # Should return filtered previews
         assert len(previews) == 2
@@ -183,15 +131,17 @@ class TestPreviewService:
     @patch('app.services.preview_service.load_all')
     def test_filter_previews_category_and_price_range(self, mock_load_all, mock_filter):
         """Test filtering previews by category and price range"""
-        mock_load_all.return_value = self.SAMPLE_FULL_PRODUCTS
+        mock_load_all.return_value = SAMPLE_FULL_PRODUCTS
         # Mock filter to return one product in price range
-        filtered_products = [self.SAMPLE_FULL_PRODUCTS[1]]  # Wireless Mouse ($25)
+        filtered_products = [SAMPLE_FULL_PRODUCTS[1]]  # Wireless Mouse ($25)
         mock_filter.return_value = filtered_products
         
-        previews = filter_previews("electronics&max=30&min=20")
+        fil_string = "electronics&max=30&min=20"
+        previews = filter_previews(fil_string)
+        fil_dict = parse_filter_string(fil_string)
         
         # The code correctly parses both max and min when in this order
-        mock_filter.assert_called_once_with(self.SAMPLE_FULL_PRODUCTS, "electronics", 20, 30)
+        mock_filter.assert_called_once_with(SAMPLE_FULL_PRODUCTS, **fil_dict)
         
         # Should return filtered previews
         assert len(previews) == 1
@@ -202,14 +152,16 @@ class TestPreviewService:
     @patch('app.services.preview_service.load_all')
     def test_filter_previews_max_price_only(self, mock_load_all, mock_filter):
         """Test filtering previews with max price only"""
-        mock_load_all.return_value = self.SAMPLE_FULL_PRODUCTS
-        filtered_products = [self.SAMPLE_FULL_PRODUCTS[1], self.SAMPLE_FULL_PRODUCTS[2]]
+        mock_load_all.return_value = SAMPLE_FULL_PRODUCTS
+        filtered_products = [SAMPLE_FULL_PRODUCTS[1], SAMPLE_FULL_PRODUCTS[2]]
         mock_filter.return_value = filtered_products
         
-        previews = filter_previews("all&max=100")
+        fil_string = "all&max=100"
+        previews = filter_previews(fil_string)
+        fil_dict = parse_filter_string(fil_string)
         
         # Should call filter with min=0 (default) and max=100
-        mock_filter.assert_called_once_with(self.SAMPLE_FULL_PRODUCTS, "all", 0, 100)
+        mock_filter.assert_called_once_with(SAMPLE_FULL_PRODUCTS, **fil_dict)
         
         assert len(previews) == 2
 
@@ -217,7 +169,7 @@ class TestPreviewService:
     @patch('app.services.preview_service.load_all')
     def test_filter_previews_min_price_only_raises_exception(self, mock_load_all, mock_filter):
         """Test filtering previews with min price only raises exception due to bug in original code"""
-        mock_load_all.return_value = self.SAMPLE_FULL_PRODUCTS
+        mock_load_all.return_value = SAMPLE_FULL_PRODUCTS
         
         # Due to bug in original code (parts[2] instead of part), this raises an exception
         with pytest.raises(HTTPException) as exc_info:
@@ -229,7 +181,7 @@ class TestPreviewService:
     @patch('app.services.preview_service.load_all')
     def test_filter_previews_malformed_request_raises_exception(self, mock_load_all):
         """Test that malformed filter requests raise HTTPException"""
-        mock_load_all.return_value = self.SAMPLE_FULL_PRODUCTS
+        mock_load_all.return_value = SAMPLE_FULL_PRODUCTS
         
         # Mock filter_product_list to raise an exception (simulating malformed request)
         with patch('app.services.preview_service.filter_product_list') as mock_filter:
@@ -245,12 +197,14 @@ class TestPreviewService:
     @patch('app.services.preview_service.load_all')
     def test_filter_previews_empty_result(self, mock_load_all, mock_filter):
         """Test filtering that returns no results"""
-        mock_load_all.return_value = self.SAMPLE_FULL_PRODUCTS
+        mock_load_all.return_value = SAMPLE_FULL_PRODUCTS
         mock_filter.return_value = []  # No products match filter
         
-        previews = filter_previews("nonexistent_category")
+        fil_string = "nonexistent_category"
+        previews = filter_previews(fil_string)
+        fil_dict = parse_filter_string(fil_string)
         
-        mock_filter.assert_called_once_with(self.SAMPLE_FULL_PRODUCTS, "nonexistent_category")
+        mock_filter.assert_called_once_with(SAMPLE_FULL_PRODUCTS, **fil_dict)
         assert previews == []
 
     def test_preview_data_integrity(self):

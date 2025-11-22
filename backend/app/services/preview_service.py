@@ -3,6 +3,7 @@ from app.schemas.product_preview import ProductPreview
 from app.schemas.product import Product
 from app.repositories.products_repo import load_all
 from fastapi import HTTPException
+from app.services.filtering import parse_filter_string
 
 def parse_to_previews(target:List[Product]) -> List[ProductPreview]:
     previews = []
@@ -20,26 +21,11 @@ def get_all_product_previews() -> List[ProductPreview]:
 from app.services.filtering import filter_product_list
 
 def filter_previews(filter_string:str) -> List[ProductPreview]:
-    category_string = ""
-    parts = filter_string.split("&")
-    category_string = parts[0]
     filtered_products = []
     try:
-        if len(parts)>1:
-            max = 0
-            min = 0
-            for part in parts[1:]:
-                if part[:4] == "max=":
-                    max = int(part[4:])
-                    continue
-                if parts[2][:4] == "min=":
-                    min = int(part[4:])
-                    continue
-                
-            filtered_products = filter_product_list(load_all(),category_string,min,max)
+        filter_dict = parse_filter_string(filter_string)
+        filtered_products = filter_product_list(load_all(),**filter_dict)
 
-        else:
-            filtered_products = filter_product_list(load_all(),category_string)
         return parse_to_previews(filtered_products)
     except Exception:
         raise HTTPException(status_code=406,detail="Malformed Filter Request")

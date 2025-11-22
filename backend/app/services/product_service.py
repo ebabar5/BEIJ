@@ -3,6 +3,7 @@ from typing import List, Dict, Any, Optional
 from fastapi import HTTPException
 from app.schemas.product import Product, ProductCreate, ProductUpdate
 from app.repositories.products_repo import load_all, save_all
+from app.constants.http_status import BAD_REQUEST, NOT_FOUND, CONFLICT
 PLACEHOLDER = "N/A"
 
 PLACEHOLDER_FIELDS = (
@@ -70,7 +71,7 @@ def list_products(sort_by: Optional[str] = None) -> List[Product]:
 
         case _:
             raise HTTPException(
-                status_code=400,
+                status_code=BAD_REQUEST,
                 detail=(
                     f"There is an issue with sort_by '{sort_by}'. "
                     "Support values: name, price_asc, price_desc, rating_desc."
@@ -101,7 +102,7 @@ def create_product(payload: ProductCreate) -> Product:
     new_id = str(uuid.uuid4())
 
     if any(it.get("product_id") == new_id for it in products):
-        raise HTTPException(status_code=409, detail="ID collision; retry.")
+        raise HTTPException(status_code=CONFLICT, detail="ID collision; retry.")
 
     new_product = _build_product(new_id, payload)
     products.append(new_product.dict())
@@ -113,7 +114,7 @@ def get_product_by_id(product_id: str) -> Product:
     for it in load_all():
         if it.get("product_id") == product_id:
             return Product(**with_placeholders(it))
-    raise HTTPException(status_code=404, detail=f"Product '{product_id}' not found")
+    raise HTTPException(status_code=NOT_FOUND, detail=f"Product '{product_id}' not found")
 
 def update_product(product_id: str, payload: ProductUpdate) -> Product:
     products = load_all()
@@ -123,12 +124,12 @@ def update_product(product_id: str, payload: ProductUpdate) -> Product:
             products[idx] = updated.dict()
             save_all(products)
             return updated
-    raise HTTPException(status_code=404, detail=f"Product '{product_id}' not found")
+    raise HTTPException(status_code=NOT_FOUND, detail=f"Product '{product_id}' not found")
 
 def delete_product(product_id: str) -> None:
     products = load_all()
     new_products = [it for it in products if it.get("product_id") != product_id]
     if len(new_products) == len(products):
-        raise HTTPException(status_code=404, detail=f"Protect '{product_id}' not found")
+        raise HTTPException(status_code=NOT_FOUND, detail=f"Protect '{product_id}' not found")
     save_all(new_products)
 

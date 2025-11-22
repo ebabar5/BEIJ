@@ -1,6 +1,5 @@
-import json, csv
-
-#todo:
+import json
+import csv
 
 filename = "test.csv"
 headers = []
@@ -47,10 +46,6 @@ with open(filename, newline='', encoding="Latin1") as csvfile:
             
             items.append(row)
         i += 1
-        '''#limited to 5 items for testing
-        if i>5:
-            break
-        #'''
 
 #json encoding
 with open(outputFile, "w", encoding="Latin1") as jsonOut:

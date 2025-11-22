@@ -6,7 +6,6 @@ and return expected responses. Tests actual HTTP endpoints rather than
 just business logic functions.
 """
 
-import pytest
 from fastapi.testclient import TestClient
 from app.main import app
 
