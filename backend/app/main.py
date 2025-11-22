@@ -1,11 +1,36 @@
 from fastapi import FastAPI
-from app.routers.products import router as products_router
-from app.routers.previews import router as preview_router
-from app.routers.users_routes import router as users_router
+from fastapi.middleware.cors import CORSMiddleware
 from app.error_handling import register_errors
 
-app = FastAPI()
+# Import the routers
+from app.routers import products_router, users_router, previews_router
+
+app = FastAPI(
+    title="BEIJ E-commerce API",
+    description="Centralized API with all routes in main.py",
+    version="1.0.0"
+)
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=[
+        "http://localhost:3000",
+        "http://localhost:5173",
+        "http://localhost:8080",
+        "http://127.0.0.1:3000",
+        "http://127.0.0.1:5173",
+    ],
+    allow_credentials=True,
+    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allow_headers=["*"],
+)
+
 register_errors(app)
+
+# Basic health check endpoints (kept in main.py as they're simple and universal)
+@app.get("/")
+def home():
+    return {"status": "ok", "message": "BEIJ E-commerce API", "docs": "/docs"}
 
 @app.get("/health")
 def health():
@@ -15,11 +40,8 @@ def health():
 def hello():
     return {"msg": "Hello World"}
 
-@app.get("/")
-def home():
-    return {"status": "ok"}
-
-# register routers are all in one place 
-routers = [products_router, preview_router, users_router]
-for r in routers: 
-    app.include_router(r) 
+# Register all routers
+# Each router handles a specific domain of the application
+app.include_router(products_router.router)
+app.include_router(users_router.router)
+app.include_router(previews_router.router) 

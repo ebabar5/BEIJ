@@ -9,7 +9,6 @@ from fastapi import HTTPException
 from typing import List, Dict, Any
 
 def hash_password(password: str) -> str:
-   
     password_bytes = password.encode('utf-8')
     if len(password_bytes) > 72:
         password_bytes = password_bytes[:72]
@@ -19,7 +18,6 @@ def hash_password(password: str) -> str:
     return hashed.decode('utf-8')
 
 def verify_password(password: str, hashed_password: str) -> bool:
-   
     password_bytes = password.encode('utf-8')
     if len(password_bytes) > 72:
         password_bytes = password_bytes[:72]
@@ -70,7 +68,7 @@ def find_product(products: List[Dict[str, Any]], product_id: str) -> Dict[str, A
          or p.get("product_id") == product_id
          or p.get("asin") == product_id), None
         )
- 
+
 def save_item(user_id: str, product_id: str) -> List[str]:
     users = load_all()
     user = find_user(users, user_id)
@@ -87,7 +85,7 @@ def save_item(user_id: str, product_id: str) -> List[str]:
         saved_ids.append(product_id)
         user["saved_item_ids"] = saved_ids
         save_all(users)
-    return saved_ids 
+    return saved_ids
 
 def unsave_item(user_id: str, product_id: str) -> List[str]:
     users = load_all()
@@ -101,7 +99,7 @@ def unsave_item(user_id: str, product_id: str) -> List[str]:
         user["saved_item_ids"] = saved_ids
         save_all(users)
     return saved_ids
- 
+
 def get_saved_item_ids(user_id: str) -> List[str]:
     users = load_all()
     user = find_user(users, user_id) 

@@ -22,7 +22,7 @@ def _any_product_id() -> str:
 def test_save_item_adds_id():
     user_id = _any_user_id()
     product_id = _any_product_id()
-    r = client.post(f"/users/{user_id}/saved-items/{product_id}")
+    r = client.post(f"/api/v1/users/{user_id}/saved-items/{product_id}")
     assert r.status_code == 200, r.json()
     data = r.json()
     assert product_id in data["saved_item_ids"]
@@ -30,8 +30,8 @@ def test_save_item_adds_id():
 def test_save_item():
     user_id = _any_user_id()
     product_id = _any_product_id()
-    client.post(f"/users/{user_id}/saved-items/{product_id}")
-    r = client.post(f"/users/{user_id}/saved-items/{product_id}")
+    client.post(f"/api/v1/users/{user_id}/saved-items/{product_id}")
+    r = client.post(f"/api/v1/users/{user_id}/saved-items/{product_id}")
     assert r.status_code == 200, r.json()
     saved = r.json()["saved_item_ids"]
     assert saved.count(product_id) == 1
