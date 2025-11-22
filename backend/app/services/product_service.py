@@ -20,7 +20,6 @@ PLACEHOLDER_FIELDS = (
 
 AVAILABLE_SORTS = ("name", "price_asc", "price_desc", "rating_desc")
 
-# rating count as int, blank or invalid as 0
 def _normalize_rating_count(raw: Any) -> int:
     if raw is None or (isinstance(raw, str) and not raw.strip()):
         return 0
@@ -39,11 +38,9 @@ def with_placeholders(rec: Dict[str, Any]) -> Dict[str, Any]:
     out["rating_count"] = _normalize_rating_count(out.get("rating_count"))
     return out
 
-# load in products with placeholders 
 def _load_products_models() -> List[Product]:
     return [Product(**with_placeholders(it)) for it in load_all()]
 
-# named sort key functions for name, price, rating 
 def _key_name(p: Product):
     return p.product_name.lower()
 
@@ -56,7 +53,6 @@ def _key_rating(p: Product):
 def list_products(sort_by: Optional[str] = None) -> List[Product]:
     items = _load_products_models()
 
-    # preserve original default: None behaves like "name"
     sort_key = "name" if sort_by is None else sort_by
 
     match sort_key:
@@ -73,7 +69,6 @@ def list_products(sort_by: Optional[str] = None) -> List[Product]:
             return sorted(items, key=_key_rating, reverse=True)
 
         case _:
-            # keep exact original error message text
             raise HTTPException(
                 status_code=400,
                 detail=(
@@ -82,7 +77,6 @@ def list_products(sort_by: Optional[str] = None) -> List[Product]:
                 ),
             )
 
-# create function for central product creation to remove duplication
 def _build_product(product_id: str, payload: ProductCreate | ProductUpdate) -> Product:
     return Product(
         product_id=product_id,
@@ -106,8 +100,7 @@ def create_product(payload: ProductCreate) -> Product:
     products = load_all()
     new_id = str(uuid.uuid4())
 
-    # keep original collision check as-is
-    if any(it.get("product_id") == new_id for it in products): # extremely unlikely, but consistent check
+    if any(it.get("product_id") == new_id for it in products):
         raise HTTPException(status_code=409, detail="ID collision; retry.")
 
     new_product = _build_product(new_id, payload)

@@ -28,7 +28,6 @@ def filter_previews(filter_string:str) -> List[ProductPreview]:
         if len(parts)>1:
             max = 0
             min = 0
-            #rating = 0.0 could add min rating filter later
             for part in parts[1:]:
                 if part[:4] == "max=":
                     max = int(part[4:])

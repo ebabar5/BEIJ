@@ -35,3 +35,4 @@ class TestRatingCountHelper:
         assert _normalize_rating_count("not_a_number") == 0
         assert _normalize_rating_count("abc123") == 0
         assert _normalize_rating_count("12.5.6") == 0  # invalid format
+
