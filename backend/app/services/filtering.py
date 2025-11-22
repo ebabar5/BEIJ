@@ -1,52 +1,70 @@
+from app.schemas.product import Product
 from typing import List, Dict, Any
 
-def _normalize_prices(min_price: int, max_price: int) -> tuple[int, int]:
-    # keep exact behavior: clamp to 0 then swap if reversed
-    min_price = max(min_price, 0)
+def filter_product_list(target: List[Product], cat_string: str, min_price: int = 0, max_price: int = 0):
     max_price = max(max_price, 0)
-    if min_price > max_price:
+    min_price = max(min_price, 0)
+
+    has_min = (min_price != 0)
+    has_max = (max_price != 0)
+
+    # only swap if BOTH bounds are actually provided
+    if has_min and has_max and min_price > max_price:
         min_price, max_price = max_price, min_price
-    return min_price, max_price
 
-def filter_product_list(
-    target: List[Dict[str, Any]],
-    cat_string: str,
-    min_price: int = 0,
-    max_price: int = 0
-):
-    min_price, max_price = _normalize_prices(min_price, max_price)
-    # Category filtering
+    # category filtering
     if cat_string == "all" or cat_string == "":
-        cat_filtered = target
+        cat_filtered = list(target)
     else:
-        categories = set(cat_string.split("*"))
-        cat_filtered = [
-            product for product in target
-            if any(category in product["category"] for category in categories)
-        ]
+        categories = cat_string.split("*")
+        cat_filtered = []
+        for product in target:
+            for category in categories:
+                if category in product["category"]:
+                    cat_filtered.append(product)
+                    break
 
-    # Price filtering
-    if min_price == 0 and max_price == 0:
+    # price filtering
+    if not has_min and not has_max:
         return cat_filtered
 
-    return [
-        product for product in cat_filtered
-        if min_price <= product["discounted_price"] <= max_price
-    ]
+    result = []
+    for product in cat_filtered:
+        price = product["discounted_price"]
 
-def parse_filter_string(filter_string: str) -> Dict:
-    # Parse a filter string into category string, min-price, max-price
-    return_dict = dict()
+        if has_min and price < min_price:
+            continue
+        if has_max and price > max_price:
+            continue
+
+        result.append(product)
+
+    return result
+
+
+def parse_filter_string(filter_string: str) -> Dict[str, Any]:
+    return_dict: Dict[str, Any] = {
+        "cat_string": "",
+        "min_price": 0,
+        "max_price": 0,
+    }
+
+    if not filter_string:
+        return return_dict
+
     parts = filter_string.split("&")
-    return_dict["cat_string"] = parts[0]  # The category string is the first item in the return list
-    if len(parts) > 1:
-        # rating = 0.0 could add min rating filter later
-        for part in parts[1:]:
-            if part[:4] == "max=":
+    return_dict["cat_string"] = parts[0]
+
+    for part in parts[1:]:
+        if part.startswith("max="):
+            try:
                 return_dict["max_price"] = int(part[4:])
-                continue
-            if parts[2][:4] == "min=":
+            except ValueError:
+                pass
+        elif part.startswith("min="):
+            try:
                 return_dict["min_price"] = int(part[4:])
-                continue
-                
+            except ValueError:
+                pass
+
     return return_dict
