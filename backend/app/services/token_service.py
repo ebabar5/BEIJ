@@ -72,19 +72,19 @@ def _expire_and_raise(token: str, msg: str) -> None:
 def verify_token(token: str) -> Dict[str, Any]:
     stored_token = get_token(token)
     if not stored_token:
-        raise HTTPException(status_code=UNAUTHORIZED, detail="Token not found or invalid")
+        raise HTTPException(status_code=UNAUTHORIZED, detail="Token not found or invalid.")
 
     expires_at = datetime.fromisoformat(stored_token["expires_at"])
     if datetime.utcnow() > expires_at:
-        _expire_and_raise(token, "Token has expired")
+        _expire_and_raise(token, "Token has expired.")
 
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
         return payload
     except jwt.ExpiredSignatureError:
-        _expire_and_raise(token, "Token has expired")
+        _expire_and_raise(token, "Token has expired.")
     except jwt.InvalidTokenError:
-        raise HTTPException(status_code=UNAUTHORIZED, detail="Invalid token")
+        raise HTTPException(status_code=UNAUTHORIZED, detail="Invalid token.")
     except Exception as e:
         raise HTTPException(
             status_code=UNAUTHORIZED,

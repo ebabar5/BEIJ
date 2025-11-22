@@ -32,9 +32,9 @@ def verify_password(password: str, hashed_password: str) -> bool:
 def create_user(user_create:UserCreate) -> UserResponse:
     users=load_all()
     if check_duplicate_email(users, user_create.email):
-        raise HTTPException(status_code=409, detail="Email already exists")
+        raise HTTPException(status_code=409, detail="Email already exists.")
     if check_duplicate_username(users, user_create.username):
-        raise HTTPException(status_code=409, detail="username already exists")
+        raise HTTPException(status_code=409, detail="Username already exists.")
     new_id = str(uuid.uuid4())
     hashed_pwd = hash_password(user_create.password)
     new_user = User(user_id=new_id, username=user_create.username.strip(), email=user_create.email, hashed_password=hashed_pwd, is_admin=False)
@@ -49,9 +49,9 @@ def authenticate_user(user_login: UserLogin) -> LoginResponse:
     users = load_all()
     user = find_user_by_username_or_email(users, user_login.username_or_email)
     if user is None:
-        raise HTTPException(status_code=401, detail="Invalid credentials")
+        raise HTTPException(status_code=401, detail="Invalid credentials.")
     if not verify_password(user_login.password, user.get("hashed_password")):
-        raise HTTPException(status_code=401, detail="invalid credentials")
+        raise HTTPException(status_code=401, detail="Invalid credentials.")
     
     is_admin = user.get("is_admin", False)
     user_response = build_user_response(user)
@@ -157,11 +157,11 @@ def update_user_profile(user_id: str, payload: UserUpdate) -> UserResponse:
         raise NotFound(f"User '{user_id}' not found.")
     if payload.username is not None:
         if check_duplicate_username(users, payload.username, exclude_user_id=user_id):
-            raise HTTPException(status_code=409, detail="Username already exists")
+            raise HTTPException(status_code=409, detail="Username already exists.")
         user["username"] = payload.username.strip()  
     if payload.email is not None:
         if check_duplicate_email(users, payload.email, exclude_user_id=user_id):
-            raise HTTPException(status_code=409, detail="Email already exists")
+            raise HTTPException(status_code=409, detail="Email already exists.")
         user["email"] = payload.email
     if payload.password is not None:
         user["hashed_password"] = hash_password(payload.password)
@@ -173,13 +173,13 @@ def authenticate_admin(user_login: UserLogin) -> LoginResponse:
     users = load_all()
     user = find_user_by_username_or_email(users, user_login.username_or_email)
     if user is None:
-        raise HTTPException(status_code=401, detail="Invalid credentials")
+        raise HTTPException(status_code=401, detail="Invalid credentials.")
     if not verify_password(user_login.password, user.get("hashed_password")):
-        raise HTTPException(status_code=401, detail="Invalid credentials")
+        raise HTTPException(status_code=401, detail="Invalid credentials.")
     
     is_admin = user.get("is_admin", False)
     if not is_admin:
-        raise HTTPException(status_code=403, detail="Admin access required")
+        raise HTTPException(status_code=403, detail="Admin access required.")
     user_response = UserResponse(
         user_id=user["user_id"],
         username=user["username"],

@@ -38,7 +38,7 @@ def admin_login(payload: UserLogin):
 def logout_user(authorization: str = Header(None)):
     """Logout user by invalidating their token"""
     if not authorization:
-        raise HTTPException(status_code=401, detail="Authorization header required")
+        raise HTTPException(status_code=401, detail="Authorization header required.")
     
     # Extract the token from the Authorization header
     token = authorization.replace("Bearer ", "") if authorization.startswith("Bearer ") else authorization

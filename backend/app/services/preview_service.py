@@ -28,6 +28,6 @@ def filter_previews(filter_string:str) -> List[ProductPreview]:
 
         return parse_to_previews(filtered_products)
     except Exception:
-        raise HTTPException(status_code=406,detail="Malformed Filter Request")
+        raise HTTPException(status_code=406, detail="Malformed Filter Request.")
 
     
