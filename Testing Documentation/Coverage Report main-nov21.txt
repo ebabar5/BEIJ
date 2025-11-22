@@ -1,0 +1,53 @@
+Here are the results of running coverage run -m pytest on the project
+Ran at: 5:48pm on November 11th 2025
+Results from backend\test excluded
+
+Name                                                   Stmts   Miss  Cover   Missing
+------------------------------------------------------------------------------------
+backend\app\__init__.py                                    0      0   100%
+backend\app\constants\__init__.py                          0      0   100%
+backend\app\constants\http_status.py                       8      0   100%
+backend\app\error_handling.py                             33      2    94%   53, 61
+backend\app\main.py                                       19      0   100%
+backend\app\repositories\__init__.py                       0      0   100%
+backend\app\repositories\products_repo.py                 14      0   100%
+backend\app\repositories\token_repo.py                    38     25    34%   9-12, 15-18, 21-23, 26-28, 31-35, 38-40, 43-45
+backend\app\repositories\users_repo.py                    58     16    72%   29, 38, 49-60, 67, 70
+backend\app\routers\__init__.py                            0      0   100%
+backend\app\routers\previews.py                           27      2    93%   14, 18
+backend\app\routers\products.py                           21      4    81%   21, 31, 37-38
+backend\app\routers\users_routes.py                       33     12    64%   10, 14, 18, 22-27, 36-37, 41-42
+backend\app\schemas\__init__.py                            0      0   100%
+backend\app\schemas\product.py                            51      0   100%
+backend\app\schemas\product_preview.py                     7      0   100%
+backend\app\schemas\user.py                               26      0   100%
+backend\app\services\__init__.py                           0      0   100%
+backend\app\services\filtering.py                         40      0   100%
+backend\app\services\preview_service.py                   23      0   100%
+backend\app\services\product_service.py                   77     22    71%   88, 107-117, 127-134, 137-141
+backend\app\services\search_service.py                    37      3    92%   40, 51-52
+backend\app\services\token_service.py                     44     30    32%   14-44, 51-69, 72, 75
+backend\app\services\user_service.py                      96     43    55%   43, 46-57, 78, 83, 87-89, 93-103, 106-110, 113-126
+------------------------------------------------------------------------------------
+TOTAL                                                   1477    161    89%
+
+#################
+My analysis:
+Areas of lowest coverage:
+- repositories\token_repo.py
+  - function bodies not run
+
+- routers\user_routes.py
+  - functions associated with many endpoints not run
+
+- services\token_service.py
+  - function bodies not run
+
+- services\user_service.py
+  - a good portion of functions are not run
+
+Summary:
+The areas of least coverage are both related to user login and tokens which are used during login
+
+Suggested Action:
+Further integration testing for user endpoints should be made. Seperate testing of tokens would also be beneficial
