@@ -111,7 +111,7 @@ class TestUserRegistration:
             create_user(user_create)
         
         assert exc_info.value.status_code == 409
-        assert "username already exists" in str(exc_info.value.detail)
+        assert "Username already exists" in str(exc_info.value.detail)
     
     @patch('app.services.user_service.load_all')
     def test_create_user_case_sensitive_username(self, mock_load):
