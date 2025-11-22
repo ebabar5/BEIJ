@@ -13,7 +13,6 @@ Date: November 2024
 PR: #1 - Password Security Tests
 """
 
-import pytest
 from app.services.user_service import hash_password, verify_password
 
 

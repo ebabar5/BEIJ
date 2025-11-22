@@ -13,7 +13,6 @@ storing all products and users in JSON files. These tests ensure data integrity
 and prevent data loss scenarios.
 """
 
-import pytest
 import json
 import tempfile
 import os
@@ -22,7 +21,7 @@ from unittest.mock import patch, mock_open
 from typing import List, Dict, Any
 
 from app.repositories import products_repo, users_repo
-
+from test.dummy_data.dummy_products import SAMPLE_FULL_PRODUCTS
 
 class TestRepositoryLayer:
     """Test suite for JSON file repository operations"""
@@ -30,44 +29,7 @@ class TestRepositoryLayer:
     def test_load_all_existing_file_products(self):
         """Test loading data from existing products.json file"""
         # Sample product data that would be in products.json
-        sample_products = [
-            {
-                "product_id": "prod1",
-                "product_name": "Gaming Laptop",
-                "category": ["electronics", "computers"],
-                "discounted_price": 799.99,
-                "actual_price": 999.99,
-                "discount_percentage": "20%",
-                "rating": 4.5,
-                "rating_count": 150,
-                "about_product": "High-performance gaming laptop",
-                "user_id": ["user1"],
-                "user_name": ["John"],
-                "review_id": ["rev1"],
-                "review_title": ["Great laptop"],
-                "review_content": "Excellent performance",
-                "img_link": "http://example.com/laptop.jpg",
-                "product_link": "http://example.com/laptop"
-            },
-            {
-                "product_id": "prod2",
-                "product_name": "Wireless Mouse",
-                "category": ["electronics", "accessories"],
-                "discounted_price": 25.99,
-                "actual_price": 35.99,
-                "discount_percentage": "28%",
-                "rating": 4.2,
-                "rating_count": 89,
-                "about_product": "Ergonomic wireless mouse",
-                "user_id": ["user2"],
-                "user_name": ["Jane"],
-                "review_id": ["rev2"],
-                "review_title": ["Good mouse"],
-                "review_content": "Works well",
-                "img_link": "http://example.com/mouse.jpg",
-                "product_link": "http://example.com/mouse"
-            }
-        ]
+        sample_products = SAMPLE_FULL_PRODUCTS[:2]
         
         # Mock the file reading to return our sample data
         mock_file_content = json.dumps(sample_products)
@@ -81,10 +43,10 @@ class TestRepositoryLayer:
             assert len(result) == 2
             assert result[0]["product_id"] == "prod1"
             assert result[0]["product_name"] == "Gaming Laptop"
-            assert result[0]["discounted_price"] == 799.99
+            assert result[0]["discounted_price"] == 800.0
             assert result[1]["product_id"] == "prod2"
             assert result[1]["product_name"] == "Wireless Mouse"
-            assert result[1]["discounted_price"] == 25.99
+            assert result[1]["discounted_price"] == 25.0
 
     def test_load_all_missing_file_returns_empty_list(self):
         """Test that load_all returns empty list when JSON file doesn't exist"""
