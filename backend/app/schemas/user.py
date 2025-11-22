@@ -1,6 +1,7 @@
 from pydantic import BaseModel
 from pydantic import EmailStr
 from pydantic import Field
+from typing import Optional
 
 
 class User(BaseModel):
@@ -32,6 +33,12 @@ class LoginResponse(BaseModel):
     user: UserResponse
     token:str
     expires_in:int 
+
+class UserUpdate(BaseModel):
+    username: Optional[str]= Field(None,min_length=3, max_length=50)
+    email: Optional[EmailStr] =None
+    password: Optional[str] = Field(None,min_length=8)
+
 
 
 
