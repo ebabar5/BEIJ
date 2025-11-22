@@ -17,7 +17,7 @@ def save_all(tokens: List[Dict[str,Any]]) -> None:
         json.dump(tokens, f, ensure_ascii=False, indent=2)
     os.replace(tmp, DATA_PATH)
     
-def add_token(token: Dict [str,Any]) -> None:
+def add_token(token: Dict[str, Any]) -> None:
     tokens =load_all()
     tokens.append(token)
     save_all(tokens)
@@ -43,9 +43,5 @@ def remove_user_tokens(user_id:str) -> None:
     tokens=load_all()
     new_tokens=[it for it in tokens if it.get("user_id") !=user_id]
     save_all(new_tokens)
-
-
-
-    
 
     
