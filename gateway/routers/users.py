@@ -18,7 +18,7 @@ class UserResponse:
             "id": backend_user.get("user_id"),
             "username": backend_user.get("username"),
             "email": backend_user.get("email"),
-            # Don't expose password hash to frontend
+            "is_admin": backend_user.get("is_admin", False),
         }
 
 @router.post("/register", response_model=Dict[str, Any])
@@ -63,7 +63,8 @@ async def login_user(login_data: Dict[str, Any]):
         # Transform frontend data to backend format
         backend_data = {
             "username_or_email": username_or_email,
-            "password": login_data.get("password")
+            "password": login_data.get("password"),
+            "remember_me": login_data.get("remember_me", False)
         }
         
         # Validate required fields
@@ -73,18 +74,49 @@ async def login_user(login_data: Dict[str, Any]):
         backend_response = await backend_client.post("/users/login", backend_data)
         
         # Transform response for frontend
-        frontend_user = UserResponse.transform(backend_response)
+        frontend_user = UserResponse.transform(backend_response.get("user", backend_response))
         
         logger.info(f"Gateway: User {username_or_email} logged in successfully")
         return {
             "user": frontend_user,
             "message": "Login successful",
-            # In a real app, you'd generate and return a JWT token here
-            "token": f"mock_token_for_{frontend_user['id']}"
+            "token": backend_response.get("token", f"mock_token_for_{frontend_user['id']}"),
+            "expires_in": backend_response.get("expires_in", 86400)
         }
         
     except Exception as e:
         logger.error(f"Error during login: {e}")
+        raise
+
+@router.post("/admin/login", response_model=Dict[str, Any])
+async def admin_login(login_data: Dict[str, Any]):
+    try:
+        username_or_email = login_data.get("username") or login_data.get("email")
+        logger.info(f"Gateway: Admin login attempt for {username_or_email}")
+        
+        backend_data = {
+            "username_or_email": username_or_email,
+            "password": login_data.get("password"),
+            "remember_me": login_data.get("remember_me", False)
+        }
+        
+        if not all([backend_data.get("username_or_email"), backend_data.get("password")]):
+            raise HTTPException(status_code=400, detail="Username/email and password are required")
+        
+        backend_response = await backend_client.post("/users/admin/login", backend_data)
+        
+        frontend_user = UserResponse.transform(backend_response.get("user", backend_response))
+        
+        logger.info(f"Gateway: Admin {username_or_email} logged in successfully")
+        return {
+            "user": frontend_user,
+            "message": "Admin login successful",
+            "token": backend_response.get("token", f"mock_token_for_{frontend_user['id']}"),
+            "expires_in": backend_response.get("expires_in", 86400)
+        }
+        
+    except Exception as e:
+        logger.error(f"Error during admin login: {e}")
         raise
 
 @router.post("/logout", response_model=Dict[str, Any])

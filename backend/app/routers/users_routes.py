@@ -1,6 +1,6 @@
 from fastapi import APIRouter, status, Header, HTTPException
 from app.schemas.user import UserCreate, UserResponse, UserLogin, LoginResponse
-from app.services.user_service import create_user, authenticate_user, save_item, unsave_item, get_saved_item_ids
+from app.services.user_service import create_user, authenticate_user, authenticate_admin, save_item, unsave_item, get_saved_item_ids
 from app.services.token_service import invalidate_token
 
 router = APIRouter(prefix="/users", tags=["users"])
@@ -12,6 +12,10 @@ def register_user(payload: UserCreate):
 @router.post("/login", response_model=LoginResponse, status_code=status.HTTP_200_OK)
 def login_user(payload: UserLogin):
     return authenticate_user(payload)
+
+@router.post("/admin/login", response_model=LoginResponse, status_code=status.HTTP_200_OK)
+def admin_login(payload: UserLogin):
+    return authenticate_admin(payload)
 
 @router.post("/logout", status_code=status.HTTP_200_OK)
 def logout_user(authorization: str = Header(None)):
