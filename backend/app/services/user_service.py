@@ -8,27 +8,31 @@ import bcrypt
 from fastapi import HTTPException
 from typing import List, Dict, Any
 
-BCRYPT_MAX_PASSWORD_LENGTH = 72
+# constant + helper 
+BCRYPT_MAX_BYTES = 72
+
+def _bcrypt_ready(password: str) -> bytes:
+    password_bytes = password.encode("utf-8")
+    return (
+        password_bytes[:BCRYPT_MAX_BYTES]
+        if len(password_bytes) > BCRYPT_MAX_BYTES
+        else password_bytes
+    )
 
 def hash_password(password: str) -> str:
-    password_bytes = password.encode('utf-8')
-    if len(password_bytes) > BCRYPT_MAX_PASSWORD_LENGTH:
-        password_bytes = password_bytes[:BCRYPT_MAX_PASSWORD_LENGTH]
+    pwd = _bcrypt_ready(password)
     salt = bcrypt.gensalt()
-    hashed = bcrypt.hashpw(password_bytes, salt)
-    return hashed.decode('utf-8')
+    hashed = bcrypt.hashpw(pwd, salt)
+    return hashed.decode("utf-8")
 
 def verify_password(password: str, hashed_password: str) -> bool:
-    password_bytes = password.encode('utf-8')
-    if len(password_bytes) > BCRYPT_MAX_PASSWORD_LENGTH:
-        password_bytes = password_bytes[:BCRYPT_MAX_PASSWORD_LENGTH]
-    hashed_bytes = hashed_password.encode('utf-8')
-    return bcrypt.checkpw(password_bytes, hashed_bytes)
+    pwd = _bcrypt_ready(password)
+    return bcrypt.checkpw(pwd, hashed_password.encode("utf-8"))
 
 def create_user(user_create:UserCreate) -> UserResponse:
     users=load_all()
     if any(it.get("email")== user_create.email for it in users):
-        raise HTTPException(status_code=409, detail="Email already exists")
+        raise HTTPException(status_code=409, detail="Email already exists.")
     if any(it.get("username")== user_create.username for it in users):
         raise HTTPException(status_code=409, detail="Username already exists.")
     new_id = str(uuid.uuid4())
@@ -125,12 +129,12 @@ def update_user_profile(user_id: str, payload: UserUpdate) -> UserResponse:
     if payload.username is not None:
         existing_user = next((it for it in users if it.get("username") == payload.username and it.get("user_id") != user_id), None)
         if existing_user:
-            raise HTTPException(status_code=409, detail="Username already exists")
+            raise HTTPException(status_code=409, detail="Username already exists.")
         user["username"] = payload.username.strip()  
     if payload.email is not None:
         existing_user = next((it for it in users if it.get("email") == payload.email and it.get("user_id") != user_id), None)
         if existing_user:
-            raise HTTPException(status_code=409, detail="Email already exists")
+            raise HTTPException(status_code=409, detail="Email already exists.")
         user["email"] = payload.email
     if payload.password is not None:
         user["hashed_password"] = hash_password(payload.password)
