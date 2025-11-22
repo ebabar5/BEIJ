@@ -1,4 +1,4 @@
-from fastapi import FastAPI, HTTPException, Response
+from fastapi import FastAPI
 from app.routers.products import router as products_router
 from app.routers.previews import router as preview_router
 from app.routers.users_routes import router as users_router
@@ -19,13 +19,7 @@ def hello():
 def home():
     return {"status": "ok"}
 
-@app.get("/favicon.ico", include_in_schema=False)
-def favicon():
-    return Response(status_code=204)
-
-app.include_router(products_router)
-app.include_router(preview_router)
-app.include_router(users_router)
-
-def catch_all(_full_path: str):
-    raise HTTPException(status_code=404)
+# register routers are all in one place 
+routers = [products_router, preview_router, users_router]
+for r in routers: 
+    app.include_router(r) 

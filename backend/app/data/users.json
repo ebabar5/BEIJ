@@ -1,1 +1,17 @@
-[]
+[
+  {
+    "user_id": "947af1b2-7466-4c22-b4cc-2bb8d5fdd0e7",
+    "username": "testuser",
+    "email": "test@example.com",
+    "hashed_password": "$2b$12$V16kjnAc9NxlHQTDnrEILOyDTGv/qaK4jFT9uytRLZ3FFb4n9GCIC",
+    "saved_item_ids": [
+      "B07JW9H4J1"
+    ]
+  },
+  {
+    "user_id": "b1ce55a0-1383-40e0-a2e4-76bb936a67d7",
+    "username": "testuser_new",
+    "email": "testnew@example.com",
+    "hashed_password": "$2b$12$RkJ3xrf.WE1saWdm7sTAAO6P8WUE77KZgLy.0eZdaZHBLfqEDsesG"
+  }
+]

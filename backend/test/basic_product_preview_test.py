@@ -1,8 +1,6 @@
 from app.services.preview_service import parse_to_previews
 from app.schemas.product_preview import ProductPreview
-
 from test.dummy_data.dummy_products import TEST_PRODUCTS
-
 
 def test_parse_to_previews():
     previews = parse_to_previews(TEST_PRODUCTS)

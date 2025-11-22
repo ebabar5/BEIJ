@@ -1,3 +1,5 @@
+#This file holds mock product list with all data fields defined
+
 TEST_PRODUCTS = [
     {"product_id":"1",
 "product_name":"Pname 1",
@@ -68,3 +70,100 @@ TEST_PRODUCTS = [
 "product_link":"www.amazon.ca/"
 }
 ]
+
+SAMPLE_FULL_PRODUCTS = [
+        {
+            "product_id": "prod1",
+            "product_name": "Gaming Laptop",
+            "category": ["electronics", "computers"],
+            "discounted_price": 800.0,
+            "actual_price": 1000.0,
+            "discount_percentage": "20%",
+            "rating": 4.5,
+            "rating_count": 150,
+            "about_product": "High-performance gaming laptop",
+            "user_id": ["u1"],
+            "user_name": ["John"],
+            "review_id": ["r1"],
+            "review_title": ["Great laptop"],
+            "review_content": "Excellent performance",
+            "img_link": "http://example.com/laptop.jpg",
+            "product_link": "http://example.com/laptop"
+        },
+        {
+            "product_id": "prod2",
+            "product_name": "Wireless Mouse",
+            "category": ["electronics", "accessories"],
+            "discounted_price": 25.0,
+            "actual_price": 35.0,
+            "discount_percentage": "29%",
+            "rating": 4.2,
+            "rating_count": 89,
+            "about_product": "Ergonomic wireless mouse",
+            "user_id": ["u2"],
+            "user_name": ["Jane"],
+            "review_id": ["r2"],
+            "review_title": ["Good mouse"],
+            "review_content": "Works well",
+            "img_link": "http://example.com/mouse.jpg",
+            "product_link": "http://example.com/mouse"
+        },
+        {
+            "product_id": "prod3",
+            "product_name": "Running Shoes",
+            "category": ["footwear", "sports"],
+            "discounted_price": 60.0,
+            "actual_price": 80.0,
+            "discount_percentage": "25%",
+            "rating": 4.8,
+            "rating_count": 200,
+            "about_product": "Comfortable running shoes",
+            "user_id": ["u3"],
+            "user_name": ["Bob"],
+            "review_id": ["r3"],
+            "review_title": ["Amazing shoes"],
+            "review_content": "Very comfortable",
+            "img_link": "http://example.com/shoes.jpg",
+            "product_link": "http://example.com/shoes"
+        }
+    ]
+
+SAMPLE_PRODUCTS = [
+    {
+        "product_id": "random",
+        "product_name": "New Product",
+        "category": ["shoes"],
+        "discounted_price": 10.0,
+        "actual_price": 20.0,
+        "discount_percentage": "50%",
+        "rating": 4.0,
+        "rating_count": 5,
+        "about_product": "desc",
+        "user_id": ["u1"],
+        "user_name": ["User 1"],
+        "review_id": ["r1"],
+        "review_title": ["Nice"],
+        "review_content": "ok",
+        "img_link": "http://random.com/a",
+        "product_link": "http://random.com/a",
+    },
+    {
+        "product_id": "random2",
+        "product_name": "Old Product",
+        "category": ["shoes"],
+        "discounted_price": 30.0,
+        "actual_price": 10.0,
+        "discount_percentage": "25%",
+        "rating": 4.0,
+        "rating_count": 10,
+        "about_product": "desc",
+        "user_id": ["u1"],
+        "user_name": ["User 1"],
+        "review_id": ["r2"],
+        "review_title": ["Good"],
+        "review_content": "ok",
+        "img_link": "http://random.com/b",
+        "product_link": "http://random.com/b",
+    },
+]
+
