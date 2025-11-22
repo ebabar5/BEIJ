@@ -10,7 +10,7 @@ ALGORITHM = "HS256"
 REGULAR_TOKEN_EXPIRY_HOURS = 24
 REMEMBER_ME_TOKEN_EXPIRY_DAYS = 30
 
-def generate_token(user_id: str, username: str, email: str, remember_me: bool = False) -> Dict[str, Any]:
+def generate_token(user_id: str, username: str, email: str, remember_me: bool = False, is_admin: bool=False) -> Dict[str, Any]:
     if remember_me:
         expires_delta = timedelta(days=REMEMBER_ME_TOKEN_EXPIRY_DAYS)
     else:
@@ -25,7 +25,8 @@ def generate_token(user_id: str, username: str, email: str, remember_me: bool = 
         "email": email,
         "exp": expires_at,
         "iat": datetime.utcnow(),
-        "remember_me": remember_me
+        "remember_me": remember_me,
+        "is_admin": is_admin
     }
     
     token = jwt.encode(payload, SECRET_KEY, algorithm=ALGORITHM)

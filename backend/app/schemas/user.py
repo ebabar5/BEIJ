@@ -8,6 +8,7 @@ class User(BaseModel):
     username: str
     email: EmailStr
     hashed_password: str
+    is_admin: bool= False
 
 class UserCreate(BaseModel):
     username: str = Field(...,min_length=3, max_length=50)
@@ -18,6 +19,7 @@ class UserResponse(BaseModel):
     user_id: str
     username: str
     email: EmailStr
+    is_admin: bool=False
 
 
 class UserLogin(BaseModel):
