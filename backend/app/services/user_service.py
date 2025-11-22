@@ -153,7 +153,7 @@ def authenticate_admin(user_login: UserLogin) -> LoginResponse:
     
     is_admin = user.get("is_admin", False)
     if not is_admin:
-        raise HTTPException(status_code=403, detail="Admin access required")
+        raise HTTPException(status_code=403, detail="Admin access required.")
     user_response = UserResponse(user_id=user["user_id"], username=user["username"], email=user["email"], is_admin=True)
     token_data = generate_token(user["user_id"], user["username"], user["email"], user_login.remember_me, True)
     
