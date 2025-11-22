@@ -30,7 +30,7 @@ def create_user(user_create:UserCreate) -> UserResponse:
     if any(it.get("email")== user_create.email for it in users):
         raise HTTPException(status_code=409, detail="Email already exists")
     if any(it.get("username")== user_create.username for it in users):
-        raise HTTPException(status_code=409, detail="username already exists")
+        raise HTTPException(status_code=409, detail="Username already exists.")
     new_id = str(uuid.uuid4())
     hashed_pwd = hash_password(user_create.password)
     new_user = User(user_id=new_id, username=user_create.username.strip(), email=user_create.email, hashed_password=hashed_pwd, is_admin=False)
@@ -45,9 +45,9 @@ def authenticate_user(user_login: UserLogin) -> LoginResponse:
     users = load_all()
     user = next((it for it in users if it.get("username") == user_login.username_or_email or it.get("email") == user_login.username_or_email), None)
     if user is None:
-        raise HTTPException(status_code=401, detail="Invalid credentials")
+        raise HTTPException(status_code=401, detail="Invalid credentials.")
     if not verify_password(user_login.password, user.get("hashed_password")):
-        raise HTTPException(status_code=401, detail="invalid credentials")
+        raise HTTPException(status_code=401, detail="Invalid credentials.")
     
     is_admin = user.get("is_admin", False)
     user_response = UserResponse(user_id=user["user_id"], username=user["username"], email=user["email"], is_admin=is_admin)
@@ -143,9 +143,9 @@ def authenticate_admin(user_login: UserLogin) -> LoginResponse:
     users = load_all()
     user = next((it for it in users if it.get("username") == user_login.username_or_email or it.get("email") == user_login.username_or_email), None)
     if user is None:
-        raise HTTPException(status_code=401, detail="Invalid credentials")
+        raise HTTPException(status_code=401, detail="Invalid credentials.")
     if not verify_password(user_login.password, user.get("hashed_password")):
-        raise HTTPException(status_code=401, detail="Invalid credentials")
+        raise HTTPException(status_code=401, detail="Invalid credentials.")
     
     is_admin = user.get("is_admin", False)
     if not is_admin:
