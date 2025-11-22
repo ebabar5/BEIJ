@@ -92,6 +92,7 @@ def _build_product(product_id: str, payload: ProductCreate | ProductUpdate) -> P
         user_id=payload.user_id,
         user_name=payload.user_name,
         review_id=payload.review_id,
+        review_title=payload.review_title,
         review_content=payload.review_content.strip(),
         img_link=payload.img_link.strip(),
         product_link=payload.product_link.strip(),
