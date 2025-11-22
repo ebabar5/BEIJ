@@ -115,7 +115,7 @@ def get_product_by_id(product_id: str) -> Product:
     for it in load_all():
         if it.get("product_id") == product_id:
             return Product(**with_placeholders(it))
-    raise HTTPException(status_code=NOT_FOUND, detail=f"Product '{product_id}' not found")
+    raise HTTPException(status_code=NOT_FOUND, detail=f"Product '{product_id}' not found.")
 
 def update_product(product_id: str, payload: ProductUpdate) -> Product:
     products = load_all()
@@ -125,12 +125,12 @@ def update_product(product_id: str, payload: ProductUpdate) -> Product:
             products[idx] = updated.model_dump()
             save_all(products)
             return updated
-    raise HTTPException(status_code=NOT_FOUND, detail=f"Product '{product_id}' not found")
+    raise HTTPException(status_code=NOT_FOUND, detail=f"Product '{product_id}' not found.")
 
 def delete_product(product_id: str) -> None:
     products = load_all()
     new_products = [it for it in products if it.get("product_id") != product_id]
     if len(new_products) == len(products):
-        raise HTTPException(status_code=NOT_FOUND, detail=f"Protect '{product_id}' not found")
+        raise HTTPException(status_code=NOT_FOUND, detail=f"Product '{product_id}' not found.")
     save_all(new_products)
 
