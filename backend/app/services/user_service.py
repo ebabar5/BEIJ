@@ -1,4 +1,4 @@
-from app.schemas.user import User, UserCreate, UserResponse, UserLogin, LoginResponse
+from app.schemas.user import User, UserCreate, UserResponse, UserLogin, LoginResponse, UserUpdate
 from app.repositories.users_repo import load_all, save_all
 from app.repositories.products_repo import load_all as load_products
 from app.services.token_service import generate_token
@@ -9,17 +9,14 @@ from fastapi import HTTPException
 from typing import List, Dict, Any
 
 def hash_password(password: str) -> str:
-   
     password_bytes = password.encode('utf-8')
     if len(password_bytes) > 72:
         password_bytes = password_bytes[:72]
-    
     salt = bcrypt.gensalt()
     hashed = bcrypt.hashpw(password_bytes, salt)
     return hashed.decode('utf-8')
 
 def verify_password(password: str, hashed_password: str) -> bool:
-   
     password_bytes = password.encode('utf-8')
     if len(password_bytes) > 72:
         password_bytes = password_bytes[:72]
@@ -49,10 +46,8 @@ def authenticate_user(user_login: UserLogin) -> LoginResponse:
         raise HTTPException(status_code=401, detail="Invalid credentials")
     if not verify_password(user_login.password, user.get("hashed_password")):
         raise HTTPException(status_code=401, detail="invalid credentials")
-    
     user_response = UserResponse(user_id=user["user_id"], username=user["username"], email=user["email"])
     token_data = generate_token(user["user_id"], user["username"], user["email"], user_login.remember_me)
-    
     return LoginResponse(
         user=user_response,
         token=token_data["token"],
@@ -70,7 +65,7 @@ def find_product(products: List[Dict[str, Any]], product_id: str) -> Dict[str, A
          or p.get("asin") == product_id), None
         )
 
-# add the product id to saved item ids to show user & product exist 
+
 def save_item(user_id: str, product_id: str) -> List[str]:
     users = load_all()
     user = find_user(users, user_id)
@@ -87,9 +82,9 @@ def save_item(user_id: str, product_id: str) -> List[str]:
         saved_ids.append(product_id)
         user["saved_item_ids"] = saved_ids
         save_all(users)
-    return saved_ids # return the newly updated saved item ids 
+    return saved_ids  
 
-# remove product id from the users saved item ids 
+
 def unsave_item(user_id: str, product_id: str) -> List[str]:
     users = load_all()
     user = find_user(users, user_id)
@@ -103,7 +98,7 @@ def unsave_item(user_id: str, product_id: str) -> List[str]:
         save_all(users)
     return saved_ids
 
-# return the saved ids of items for the user 
+
 def get_saved_item_ids(user_id: str) -> List[str]:
     users = load_all()
     user = find_user(users, user_id) 
@@ -111,3 +106,29 @@ def get_saved_item_ids(user_id: str) -> List[str]:
         raise NotFound(f"User '{user_id}' not found.")
     return user.get("saved_item_ids") or []
 
+def get_user_profile(user_id: str) -> UserResponse:
+    users=load_all()
+    user=find_user(users, user_id)
+    if user is None:
+        raise NotFound(f"User '{user_id}' not found.")
+    return UserResponse(user_id=user["user_id"], username=user["username"], email=user["email"])
+
+def update_user_profile(user_id: str, payload: UserUpdate) -> UserResponse:
+    users = load_all()
+    user = find_user(users, user_id)
+    if user is None:
+        raise NotFound(f"User '{user_id}' not found.")
+    if payload.username is not None:
+        existing_user = next((it for it in users if it.get("username") == payload.username and it.get("user_id") != user_id), None)
+        if existing_user:
+            raise HTTPException(status_code=409, detail="Username already exists")
+        user["username"] = payload.username.strip()  
+    if payload.email is not None:
+        existing_user = next((it for it in users if it.get("email") == payload.email and it.get("user_id") != user_id), None)
+        if existing_user:
+            raise HTTPException(status_code=409, detail="Email already exists")
+        user["email"] = payload.email
+    if payload.password is not None:
+        user["hashed_password"] = hash_password(payload.password)
+    save_all(users)
+    return UserResponse(user_id=user["user_id"], username=user["username"], email=user["email"])

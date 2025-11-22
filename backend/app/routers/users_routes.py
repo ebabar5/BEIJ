@@ -1,7 +1,8 @@
 from fastapi import APIRouter, status, Header, HTTPException
-from app.schemas.user import UserCreate, UserResponse, UserLogin, LoginResponse
-from app.services.user_service import create_user, authenticate_user, save_item, unsave_item, get_saved_item_ids
+from app.schemas.user import UserCreate, UserResponse, UserLogin, LoginResponse, UserUpdate
+from app.services.user_service import create_user, authenticate_user, save_item, unsave_item, get_saved_item_ids, get_user_profile, update_user_profile
 from app.services.token_service import invalidate_token
+
 
 router = APIRouter(prefix="/users", tags=["users"])
 
@@ -21,6 +22,14 @@ def logout_user(authorization: str = Header(None)):
     token = authorization.replace("Bearer ", "") if authorization.startswith("Bearer ") else authorization
     invalidate_token(token)
     return {"message": "Logged out successfully"}
+
+@router.get("/{user_id}", response_model=UserResponse, status_code=status.HTTP_200_OK)
+def get_profile(user_id: str):
+    return get_user_profile(user_id)
+
+@router.put("/{user_id}", response_model=UserResponse, status_code=status.HTTP_200_OK)
+def update_profile(user_id: str, payload: UserUpdate):
+    return update_user_profile(user_id, payload)
 
 @router.post("/{user_id}/saved-items/{product_id}")
 def save_item_user(user_id: str, product_id: str):
