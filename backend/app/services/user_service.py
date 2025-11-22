@@ -8,21 +8,26 @@ import bcrypt
 from fastapi import HTTPException
 from typing import List, Dict, Any
 
+# constant + helper 
+BCRYPT_MAX_BYTES = 72
+
+def _bcrypt_ready(password: str) -> bytes:
+    password_bytes = password.encode("utf-8")
+    return (
+        password_bytes[:BCRYPT_MAX_BYTES]
+        if len(password_bytes) > BCRYPT_MAX_BYTES
+        else password_bytes
+    )
+
 def hash_password(password: str) -> str:
-    password_bytes = password.encode('utf-8')
-    if len(password_bytes) > 72:
-        password_bytes = password_bytes[:72]
-    
+    pwd = _bcrypt_ready(password)
     salt = bcrypt.gensalt()
-    hashed = bcrypt.hashpw(password_bytes, salt)
-    return hashed.decode('utf-8')
+    hashed = bcrypt.hashpw(pwd, salt)
+    return hashed.decode("utf-8")
 
 def verify_password(password: str, hashed_password: str) -> bool:
-    password_bytes = password.encode('utf-8')
-    if len(password_bytes) > 72:
-        password_bytes = password_bytes[:72]
-    hashed_bytes = hashed_password.encode('utf-8')
-    return bcrypt.checkpw(password_bytes, hashed_bytes)
+    pwd = _bcrypt_ready(password)
+    return bcrypt.checkpw(pwd, hashed_password.encode("utf-8"))
 
 def create_user(user_create:UserCreate) -> UserResponse:
     users=load_all()
@@ -126,4 +131,3 @@ def authenticate_admin(user_login: UserLogin) -> LoginResponse:
         token=token_data["token"],
         expires_in=token_data["expires_in"]
     )
-
