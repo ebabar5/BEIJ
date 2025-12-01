@@ -1,9 +1,9 @@
 [
   {
     "user_id": "947af1b2-7466-4c22-b4cc-2bb8d5fdd0e7",
-    "username": "testuser",
-    "email": "test@example.com",
-    "hashed_password": "$2b$12$V16kjnAc9NxlHQTDnrEILOyDTGv/qaK4jFT9uytRLZ3FFb4n9GCIC",
+    "username": "updated",
+    "email": "demo@example.com",
+    "hashed_password": "$2b$12$KIhHaXTfMucRFFJae4jG..amcZ.T4N5jgB46m.wnlVy89S2cPplwm",
     "saved_item_ids": [
       "B07JW9H4J1"
     ]
