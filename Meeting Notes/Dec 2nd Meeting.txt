@@ -1,0 +1,29 @@
+Format: Online meeting
+Meeting Start: 1:30 PM
+Meeting End: 1:50 PM
+
+Attendance:
+- Eshan
+- Logan
+- Isaac
+- Beab
+
+Topics:
+
+Project:
+- From talking with TA docker images plus working should get us to 60%
+- We have a skeleton of a frontend but need to work on that
+- External api and individual functionality need to be approved by TA -> email them BEFORE STARTING for approval
+
+
+Work that needs to be done: 
+By priority
+- frontend
+- admin page *simple actions like add/remove user/listing
+- external api
+- individual features
+
+If you work on something add it as a subissue to the frontend issue in the backlog
+
+Next meeting tomorrow:
+- in the evening after 6:30 pm
