@@ -5,7 +5,7 @@ export default function Home() {
   return (
     <div>
       <div className="justify-center">
-          <h1>Title bar with search</h1>
+          <h1>Title bar</h1>
           <p>
             <Link href="/listings">Listings</Link> |
             {" "}<Link href="/users">Users</Link> |
