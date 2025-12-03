@@ -19,6 +19,7 @@ searchParams: Promise < {[key: string]: string | string[] | undefined } > ;}){
 
         return(<>
         <div>
+            <Link href="/listings">← Back to Listings</Link>
             <p>{product.product_name}</p>
             <p>Full Price: {product.actual_price}</p>
             <p>Discounted Price: {product.discounted_price}</p>
