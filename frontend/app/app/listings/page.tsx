@@ -1,82 +1,189 @@
-import ListingsClient from './ListingsClient';
+import Link from "next/link";
+import ProductCard from "../components/ProductCard";
+import FilterSidebar from "../components/FilterSidebar";
+import SortDropdown from "../components/SortDropdown";
 
-// Helper function to build filter string from individual parameters (for backward compatibility)
-function buildFilter(category: string | undefined, max: number | undefined, min: number | undefined): string {
-  let previous: boolean = false;
-  let filter: string = '';
-  if (category && category !== 'undefined') {
-    filter = filter.concat(category);
-    previous = true;
+const API_BASE = "http://localhost:8000/api/v1";
+
+// Fetch all products with full data (includes images)
+async function getProducts(sortBy?: string) {
+  const url = sortBy 
+    ? `${API_BASE}/products/?sort_by=${sortBy}`
+    : `${API_BASE}/products/`;
+  
+  const res = await fetch(url, { cache: "no-store" });
+  if (!res.ok) {
+    throw new Error("Failed to fetch products");
   }
-  if (max !== undefined && max !== null && !isNaN(Number(max))) {
-    if (previous) filter = filter.concat("&");
-    filter = filter.concat("max=", String(max));
-    previous = true;
-  }
-  if (min !== undefined && min !== null && !isNaN(Number(min))) {
-    if (previous) filter = filter.concat("&");
-    filter = filter.concat("min=", String(min));
-  }
-  return filter;
+  return res.json();
 }
 
-async function Page({
-  params,
-  searchParams,
-}: {
+// Get unique categories from products
+function extractCategories(products: any[]): string[] {
+  const categorySet = new Set<string>();
+  products.forEach(p => {
+    if (p.category && Array.isArray(p.category)) {
+      p.category.forEach((cat: string) => categorySet.add(cat));
+    }
+  });
+  return Array.from(categorySet).sort();
+}
+
+// Filter products based on criteria
+function filterProducts(
+  products: any[],
+  category?: string,
+  minPrice?: number,
+  maxPrice?: number
+) {
+  return products.filter(p => {
+    // Category filter
+    if (category && category !== "all") {
+      if (!p.category || !p.category.includes(category)) {
+        return false;
+      }
+    }
+    
+    // Price filters
+    if (minPrice && p.discounted_price < minPrice) {
+      return false;
+    }
+    if (maxPrice && p.discounted_price > maxPrice) {
+      return false;
+    }
+    
+    return true;
+  });
+}
+
+interface PageProps {
   params: Promise<{ slug: string[] }>;
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
-}) {
-  const { slug } = await params;
-  const sp = await searchParams;
-
-  // Support both new format (filter, search, sort_by) and old format (cat, max, min) for backward compatibility
-  const filter = (sp.filter as string | undefined) || 
-    (sp.cat || sp.max || sp.min ? buildFilter(
-      sp.cat as string | undefined,
-      sp.max ? Number(sp.max) : undefined,
-      sp.min ? Number(sp.min) : undefined
-    ) : undefined);
-  
-  const search = sp.search as string | undefined;
-  const sort_by = sp.sort_by as string | undefined;
-
-  // Build API URL based on parameters
-  let address = 'http://localhost:8000/api/v1/previews/';
-  
-  if (search) {
-    // If search exists, combine with filter if present
-    // Backend format: /search/keyword&filter_string
-    // The filter string already contains & and =, so we combine first then encode
-    if (filter) {
-      const combined = `${search}&${filter}`;
-      address = `http://localhost:8000/api/v1/previews/search/${encodeURIComponent(combined)}`;
-    } else {
-      address = `http://localhost:8000/api/v1/previews/search/${encodeURIComponent(search)}`;
-    }
-  } else if (filter) {
-    // If filter exists, use filter endpoint
-    address = `http://localhost:8000/api/v1/previews/${encodeURIComponent(filter)}`;
-  }
-
-  try {
-    const res = await fetch(address, {
-      cache: "no-store",
-    });
-    if (!res.ok) {
-      throw new Error(`API error: ${res.status}`);
-    }
-    const previews = await res.json();
-    return <ListingsClient initialPreviews={previews} sortBy={sort_by} />;
-  } catch (error) {
-    console.error('Error fetching previews:', error);
-    return (
-      <div>
-        <h1>Error loading listings</h1>
-        <p>Failed to fetch product previews. Please try again later.</p>
-      </div>
-    );
-  }
 }
 
-export default Page;
+export default async function ListingsPage({ params, searchParams }: PageProps) {
+  const sp = await searchParams;
+  
+  // Parse search params - support both old format (cat, min, max) and new format (filter)
+  const category = Array.isArray(sp.cat) ? sp.cat[0] : sp.cat;
+  const minPrice = sp.min ? Number(Array.isArray(sp.min) ? sp.min[0] : sp.min) : undefined;
+  const maxPrice = sp.max ? Number(Array.isArray(sp.max) ? sp.max[0] : sp.max) : undefined;
+  const sortBy = Array.isArray(sp.sort) ? sp.sort[0] : (Array.isArray(sp.sort_by) ? sp.sort_by[0] : sp.sort_by) || sp.sort;
+
+  // Fetch products
+  let products = [];
+  let error = null;
+  
+  try {
+    products = await getProducts(sortBy);
+  } catch (e) {
+    error = "Failed to load products. Please make sure the backend is running.";
+  }
+
+  // Extract categories for filter sidebar
+  const categories = extractCategories(products);
+
+  // Apply filters
+  const filteredProducts = filterProducts(products, category, minPrice, maxPrice);
+
+  // Count for display
+  const totalCount = products.length;
+  const filteredCount = filteredProducts.length;
+
+  return (
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-900">
+      {/* Header */}
+      <header className="bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 sticky top-0 z-30">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between h-16">
+            {/* Logo */}
+            <Link href="/" className="flex items-center gap-2">
+              <span className="text-2xl font-bold text-emerald-600">BEIJ</span>
+            </Link>
+
+            {/* Navigation */}
+            <nav className="flex items-center gap-6">
+              <Link href="/listings" className="text-sm font-medium text-emerald-600">
+                Products
+              </Link>
+              <Link href="/users" className="text-sm font-medium text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white">
+                Account
+              </Link>
+            </nav>
+          </div>
+        </div>
+      </header>
+
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Page Title & Controls */}
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+          <div>
+            <h1 className="text-2xl font-bold text-slate-900 dark:text-white">Products</h1>
+            <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
+              {filteredCount === totalCount 
+                ? `${totalCount} products`
+                : `${filteredCount} of ${totalCount} products`
+              }
+              {category && ` in ${category.replace(/([A-Z])/g, ' $1').trim()}`}
+            </p>
+          </div>
+          
+          <div className="flex items-center gap-3">
+            <SortDropdown currentSort={sortBy} />
+          </div>
+        </div>
+
+        {/* Error State */}
+        {error && (
+          <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4 mb-6">
+            <p className="text-red-600 dark:text-red-400">{error}</p>
+          </div>
+        )}
+
+        {/* Main Content */}
+        <div className="flex gap-8">
+          {/* Sidebar */}
+          <FilterSidebar
+            categories={categories}
+            currentCategory={category}
+            currentMin={minPrice}
+            currentMax={maxPrice}
+          />
+
+          {/* Product Grid */}
+          <main className="flex-1">
+            {filteredProducts.length === 0 ? (
+              <div className="text-center py-12">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1} stroke="currentColor" className="w-16 h-16 mx-auto text-slate-300 dark:text-slate-600 mb-4">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M20.25 7.5l-.625 10.632a2.25 2.25 0 01-2.247 2.118H6.622a2.25 2.25 0 01-2.247-2.118L3.75 7.5m6 4.125l2.25 2.25m0 0l2.25 2.25M12 13.875l2.25-2.25M12 13.875l-2.25 2.25M3.375 7.5h17.25c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125z" />
+                </svg>
+                <h3 className="text-lg font-medium text-slate-900 dark:text-white mb-2">No products found</h3>
+                <p className="text-slate-500 dark:text-slate-400 mb-4">Try adjusting your filters</p>
+                <Link
+                  href="/listings"
+                  className="inline-flex items-center gap-2 px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-500 transition-colors"
+                >
+                  Clear filters
+                </Link>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                {filteredProducts.map((product: any) => (
+                  <ProductCard
+                    key={product.product_id}
+                    product_id={product.product_id}
+                    product_name={product.product_name}
+                    discounted_price={product.discounted_price}
+                    actual_price={product.actual_price}
+                    rating={product.rating}
+                    img_link={product.img_link}
+                  />
+                ))}
+              </div>
+            )}
+          </main>
+        </div>
+      </div>
+    </div>
+  );
+}
