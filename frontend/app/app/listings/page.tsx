@@ -60,7 +60,9 @@ async function Page({
   }
 
   try {
-    const res = await fetch(address);
+    const res = await fetch(address, {
+      cache: "no-store",
+    });
     if (!res.ok) {
       throw new Error(`API error: ${res.status}`);
     }
