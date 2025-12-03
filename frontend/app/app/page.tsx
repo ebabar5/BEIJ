@@ -5,13 +5,15 @@ export default function Home() {
   return (
     <div>
       <div className="justify-center">
-          <h1>Title bar</h1>
-          <p>
-            <Link href="/listings">Listings</Link> |
-            {" "}<Link href="/users">Users</Link> |
-            {" "}<a>Search</a>
-          </p>
-        </div>
+        <h1>Title bar</h1>
+        <p>
+          <Link href="/listings">Listings</Link> |
+          {" "}
+          <Link href="/users">Users</Link> |
+          {" "}
+          <Link href="/listings/search">Search</Link>
+        </p>
+      </div>
       <main className="flex bg-white dark:bg-black sm:items-start">
         <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
           <a
@@ -19,12 +21,11 @@ export default function Home() {
             href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
             target="_blank"
             rel="noopener noreferrer"
-          >Documentation
+          >
+            Documentation
           </a>
         </div>
-        <div>
-          
-        </div>
+        <div></div>
       </main>
     </div>
   );
