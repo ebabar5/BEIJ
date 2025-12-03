@@ -9,7 +9,7 @@ export default function Home() {
           <p>
             <Link href="/listings">Listings</Link> |
             {" "}<Link href="/users">Users</Link> |
-            {" "}<a>Search</a>
+            {" "}<Link href="/listings">Search</Link>
           </p>
         </div>
       <main className="flex bg-white dark:bg-black sm:items-start">

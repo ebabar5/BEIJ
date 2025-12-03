@@ -1,22 +1,23 @@
 let base_address = 'http://localhost:8000/api/v1/previews/';
 
-function buildFilter(category:string,max:number,min:number){
+function buildFilter(category: string | undefined, max: number | undefined, min: number | undefined): string {
   //build the filter string
-  let previous : boolean = false;
-  let filter : string = '';
-  if(category!='undefined'){
-    filter=filter.concat(category);
+  let previous: boolean = false;
+  let filter: string = '';
+  if (category && category !== 'undefined') {
+    filter = filter.concat(category);
     previous = true;
   }
-  if(max!=NaN && max!=undefined){
-    if(previous)filter=filter.concat("&");
-    filter=filter.concat("max=",max);
+  if (max !== undefined && max !== null && !isNaN(Number(max))) {
+    if (previous) filter = filter.concat("&");
+    filter = filter.concat("max=", String(max));
+    previous = true;
   }
-  if(min!=NaN && min!=undefined){
-    if(previous)filter=filter.concat("&");
-    filter=filter.concat("min=",min);
+  if (min !== undefined && min !== null && !isNaN(Number(min))) {
+    if (previous) filter = filter.concat("&");
+    filter = filter.concat("min=", String(min));
   }
-  return(filter);
+  return filter;
 }
 
 async function Page({params, searchParams,}: {
@@ -27,12 +28,12 @@ searchParams: Promise < {[key: string]: string | string[] | undefined } > ;})
   const {slug} = await params;
   const sp = await searchParams;//Use url parameter to build the filter
   //testing
-  const category : string = sp.cat;
-  const max : number = sp.max;
-  const min : number = sp.min;
+  const category: string | undefined = Array.isArray(sp.cat) ? sp.cat[0] : sp.cat;
+  const max: number | undefined = sp.max ? Number(Array.isArray(sp.max) ? sp.max[0] : sp.max) : undefined;
+  const min: number | undefined = sp.min ? Number(Array.isArray(sp.min) ? sp.min[0] : sp.min) : undefined;
   //console.log("cat: %s\nMax: %f, Min: %f",category,max,min)
 
-  let filter:string = buildFilter(category,max,min);
+  let filter: string = buildFilter(category, max, min);
   let address = base_address.concat(filter);
   const res = await fetch(address);
   const previews = await res.json();
@@ -40,7 +41,7 @@ searchParams: Promise < {[key: string]: string | string[] | undefined } > ;})
 
   return (<><h1>Listing previews</h1>
   <p>Server Address: {base_address}</p><p>Filter: {filter}</p>
-  <div>{previews.map((preview) => {
+      <div>{previews.map((preview: any) => {
     return (
       <div key={preview.product_id}>
       <h2>{preview.product_name}</h2>
