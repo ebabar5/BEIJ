@@ -13,5 +13,12 @@
     "username": "testuser_new",
     "email": "testnew@example.com",
     "hashed_password": "$2b$12$RkJ3xrf.WE1saWdm7sTAAO6P8WUE77KZgLy.0eZdaZHBLfqEDsesG"
+  },
+  {
+    "user_id": "eda40c9a-6f48-4e96-9350-d3cccda048a3",
+    "username": "Test-Isaac",
+    "email": "IsaacKM100@gmail.com",
+    "hashed_password": "$2b$12$GlA0z54IPDM0PSYmvOLpmumAzwsbKWCPTWKjn4707XlBkUnNnqyOG",
+    "is_admin": false
   }
 ]

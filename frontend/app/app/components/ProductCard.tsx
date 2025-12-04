@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import Image from "next/image";
+import CompareButton from "./CompareButton";
 
 interface ProductCardProps {
   product_id: string;
@@ -58,6 +59,11 @@ export default function ProductCard({
               -{discountPercent}%
             </div>
           )}
+
+          {/* Compare Button */}
+          <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
+            <CompareButton productId={product_id} variant="icon" />
+          </div>
         </div>
 
         {/* Content */}
