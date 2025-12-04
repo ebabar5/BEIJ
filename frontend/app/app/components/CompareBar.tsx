@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useCompare } from "../context/CompareContext";
+import { API_BASE } from "../context/APIAddress";
 
 interface ProductPreview {
   product_id: string;
@@ -10,8 +11,6 @@ interface ProductPreview {
   img_link?: string;
   discounted_price: number;
 }
-
-const API_BASE = "http://localhost:8000/api/v1";
 
 export default function CompareBar() {
   const { compareIds, removeFromCompare, clearCompare } = useCompare();

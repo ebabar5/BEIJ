@@ -4,8 +4,7 @@ import Footer from "../components/Footer";
 import ProductActions from "../components/ProductActions";
 import ProductViewTracker from "./ProductViewTracker";
 import Recommendations from "../components/Recommendations";
-
-const API_BASE = "http://host.docker.internal:8000/api/v1";//Use docker alias for localhost
+import { API_BASE } from "../context/APIAddress";
 
 interface PageProps {
   params: Promise<{ slug: string[] }>;

@@ -1,7 +1,7 @@
 // API utility functions for BEIJ frontend
 // This file contains all the functions to communicate with the backend
 
-const API_BASE = "http://localhost:8000/api/v1";
+import { API_BASE } from "../context/APIAddress";
 
 // ============================================
 // Types

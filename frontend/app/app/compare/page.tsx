@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useCompare } from "../context/CompareContext";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
+import { API_BASE } from "../context/APIAddress";
 
 interface Product {
   product_id: string;
@@ -17,8 +18,6 @@ interface Product {
   product_link?: string;
   category?: string[];
 }
-
-const API_BASE = "http://localhost:8000/api/v1";
 
 export default function ComparePage() {
   const { compareIds, removeFromCompare, clearCompare } = useCompare();
