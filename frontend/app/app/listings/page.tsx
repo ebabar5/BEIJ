@@ -166,9 +166,9 @@ export default async function ListingsPage({ params, searchParams }: PageProps) 
               </div>
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                {filteredProducts.map((product: any) => (
+                {filteredProducts.map((product: any, index: number) => (
                   <ProductCard
-                    key={product.product_id}
+                    key={`${product.product_id}-${index}`}
                     product_id={product.product_id}
                     product_name={product.product_name}
                     discounted_price={product.discounted_price}
