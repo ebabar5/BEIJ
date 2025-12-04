@@ -1,8 +1,9 @@
 from app.schemas.user import User, UserCreate, UserResponse, UserLogin, LoginResponse, UserUpdate, ForgotPasswordResponse, ResetPasswordResponse
-from app.repositories.users_repo import load_all, save_all
+from app.repositories.users_repo import load_all, save_all, add_saved_item, remove_saved_item, get_saved_item_ids as repo_get_saved_item_ids, add_recently_viewed_item, get_recently_viewed_ids
 from app.repositories.products_repo import load_all as load_products
 from app.services.token_service import generate_token
 from app.error_handling import NotFound, BadRequest
+from app.schemas.product import Product
 import uuid
 import bcrypt
 import secrets
@@ -174,6 +175,24 @@ def get_saved_item_ids(user_id: str) -> List[str]:
     if user is None: 
         raise NotFound(f"User '{user_id}' not found.")
     return user.get("saved_item_ids") or []
+
+def add_recently_viewed(user_id: str, product_id: str) -> List[str]:
+    user = add_recently_viewed_item(user_id, product_id)
+    rv = user.get("recently_viewed_ids")
+    if not isinstance(rv, list):
+        rv = []
+    return rv
+
+def get_recently_viewed_products(user_id: str, limit: int = 4) -> List[Product]:
+    ids = get_recently_viewed_ids(user_id, limit=limit)
+
+    all_products = load_products()
+
+    by_id = {p["product_id"]: p for p in all_products}
+
+    ordered = [by_id[pid] for pid in ids if pid in by_id]
+    return [Product(**p) for p in ordered]
+
 
 def get_user_profile(user_id: str) -> UserResponse:
     users = load_all()

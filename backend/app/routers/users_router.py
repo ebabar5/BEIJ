@@ -12,6 +12,7 @@ from app.schemas.user import (
     ResetPasswordRequest,
     ResetPasswordResponse
 )
+from app.schemas.product import Product
 from app.services.user_service import (
     create_user, 
     create_admin_user,
@@ -24,7 +25,9 @@ from app.services.user_service import (
     update_user_profile,
     list_users,
     generate_reset_token,
-    reset_password_with_token
+    reset_password_with_token,
+    add_recently_viewed,
+    get_recently_viewed_products
 )
 from app.services.token_service import invalidate_token
 
@@ -109,4 +112,29 @@ def get_saved_items_user(user_id: str):
     """Get user's saved items"""
     saved_ids = get_saved_item_ids(user_id)
     return {"user_id": user_id, "saved_item_ids": saved_ids}
+
+@router.post(
+    "/{user_id}/recently-viewed/{product_id}",
+    summary="Add recently viewed item",
+)
+def add_recently_viewed_endpoint(user_id: str, product_id: str):
+    rv_ids = add_recently_viewed(user_id, product_id)
+    return {"user_id": user_id, "recently_viewed_ids": rv_ids}
+
+
+@router.get(
+    "/{user_id}/recently-viewed",
+    response_model=List[Product],
+    summary="Get recently viewed products",
+)
+def get_recently_viewed_endpoint(
+    user_id: str,
+    limit: int = Query(
+        4,
+        ge=1,
+        le=20,
+        description="Max number of recently viewed items to return",
+    ),
+):
+    return get_recently_viewed_products(user_id, limit=limit)
 
