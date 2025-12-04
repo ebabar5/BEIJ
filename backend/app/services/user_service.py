@@ -1,4 +1,7 @@
-from app.schemas.user import User, UserCreate, UserResponse, UserLogin, LoginResponse, UserUpdate, ForgotPasswordResponse, ResetPasswordResponse
+from app.schemas.user import (
+    User, UserCreate, UserResponse, UserLogin, LoginResponse, UserUpdate,
+    ForgotPasswordResponse, ResetPasswordResponse
+)
 from app.repositories.users_repo import load_all, save_all
 from app.repositories.products_repo import load_all as load_products
 from app.services.token_service import generate_token
@@ -227,7 +230,6 @@ def authenticate_admin(user_login: UserLogin) -> LoginResponse:
         expires_in=token_data["expires_in"]
     )
 
-
 # ============================================
 # Password Reset Functions
 # ============================================
@@ -240,18 +242,15 @@ def _load_reset_tokens() -> List[Dict[str, Any]]:
     except (FileNotFoundError, json.JSONDecodeError):
         return []
 
-
 def _save_reset_tokens(tokens: List[Dict[str, Any]]) -> None:
     """Save reset tokens to file"""
     with open(RESET_TOKENS_FILE, "w") as f:
         json.dump(tokens, f, indent=2)
 
-
 def _cleanup_expired_tokens(tokens: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
     """Remove expired tokens"""
     now = datetime.utcnow().isoformat()
     return [t for t in tokens if t.get("expires_at", "") > now]
-
 
 def generate_reset_token(email: str) -> ForgotPasswordResponse:
     """Generate a password reset token for the given email"""
@@ -290,7 +289,6 @@ def generate_reset_token(email: str) -> ForgotPasswordResponse:
         reset_token=token,
         expires_in=RESET_TOKEN_EXPIRY_MINUTES * 60  # in seconds
     )
-
 
 def reset_password_with_token(token: str, new_password: str) -> ResetPasswordResponse:
     """Reset password using a valid token"""
