@@ -3,7 +3,7 @@ import Header from "../components/Header";
 import Footer from "../components/Footer";
 import ProductActions from "../components/ProductActions";
 
-const API_BASE = "http://localhost:8000/api/v1";
+const API_BASE = "http://host.docker.internal:8000/api/v1";//Use docker alias for localhost
 
 interface PageProps {
   params: Promise<{ slug: string[] }>;

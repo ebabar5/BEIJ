@@ -5,7 +5,7 @@ import ProductCard from "../components/ProductCard";
 import FilterSidebar from "../components/FilterSidebar";
 import SortDropdown from "../components/SortDropdown";
 
-const API_BASE = "http://localhost:8000/api/v1";
+const API_BASE = "http://host.docker.internal:8000/api/v1";
 
 // Fetch all products with full data (includes images)
 async function getProducts(sortBy?: string) {

@@ -2,7 +2,7 @@ import Link from "next/link";
 import Header from "./components/Header";
 import Footer from "./components/Footer";
 
-const API_BASE = "http://localhost:8000/api/v1";
+const API_BASE = "http://host.docker.internal:8000/api/v1";//Changed local host to docker host ip
 
 // Fetch featured products (top rated)
 async function getFeaturedProducts() {
