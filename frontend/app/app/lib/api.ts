@@ -84,6 +84,32 @@ export async function loginUser(
 }
 
 /**
+ * Register a new admin user
+ * POST /api/v1/users/admin/register?admin_secret=XXX
+ */
+export async function registerAdmin(
+  username: string,
+  email: string,
+  password: string,
+  adminSecret: string
+): Promise<User> {
+  const response = await fetch(`${API_BASE}/users/admin/register?admin_secret=${encodeURIComponent(adminSecret)}`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ username, email, password }),
+  });
+
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.message || "Admin registration failed");
+  }
+
+  return response.json();
+}
+
+/**
  * Login as admin
  * POST /api/v1/users/admin/login
  */
@@ -319,6 +345,7 @@ export async function getSavedItems(userId: string): Promise<string[]> {
 }
 
 // ============================================
+<<<<<<< HEAD
 // View History & Recommendations API Functions
 // ============================================
 
@@ -377,11 +404,135 @@ export async function getRecommendations(
   }
   params.set("limit", limit.toString());
 
-  const response = await fetch(`${API_BASE}/users/${userId}/recommendations?${params.toString()}`);
+  try {
+    const response = await fetch(`${API_BASE}/users/${userId}/recommendations?${params.toString()}`);
+
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({ message: "Failed to get recommendations" }));
+      throw new Error(error.message || "Failed to get recommendations");
+    }
+
+    return response.json();
+  } catch (err) {
+    // Handle network errors (Failed to fetch) gracefully
+    if (err instanceof TypeError && err.message === "Failed to fetch") {
+      console.warn("Network error getting recommendations - backend may be unreachable");
+      return []; // Return empty array for network errors
+    }
+    throw err; // Re-throw other errors
+  }
+}
+
+// ============================================
+// Admin API Functions
+// ============================================
+
+/**
+ * Get all users (admin only)
+ * GET /api/v1/users/
+ */
+export async function getAllUsers(token: string): Promise<User[]> {
+  const response = await fetch(`${API_BASE}/users/`, {
+    headers: {
+      "Authorization": `Bearer ${token}`,
+    },
+  });
 
   if (!response.ok) {
     const error = await response.json();
-    throw new Error(error.message || "Failed to get recommendations");
+    throw new Error(error.message || "Failed to get users");
+  }
+
+  return response.json();
+}
+
+/**
+ * Create a new product (admin only)
+ * POST /api/v1/products/
+ */
+export async function createProductAdmin(
+  product: Partial<Product>,
+  token: string
+): Promise<Product> {
+  const response = await fetch(`${API_BASE}/products/`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": `Bearer ${token}`,
+    },
+    body: JSON.stringify(product),
+  });
+
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.message || "Failed to create product");
+  }
+
+  return response.json();
+}
+
+/**
+ * Update a product (admin only)
+ * PUT /api/v1/products/{product_id}
+ */
+export async function updateProductAdmin(
+  productId: string,
+  product: Partial<Product>,
+  token: string
+): Promise<Product> {
+  const response = await fetch(`${API_BASE}/products/${productId}`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": `Bearer ${token}`,
+    },
+    body: JSON.stringify(product),
+  });
+
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.message || "Failed to update product");
+  }
+
+  return response.json();
+}
+
+/**
+ * Delete a product (admin only)
+ * DELETE /api/v1/products/{product_id}
+ */
+export async function deleteProductAdmin(
+  productId: string,
+  token: string
+): Promise<void> {
+  const response = await fetch(`${API_BASE}/products/${productId}`, {
+    method: "DELETE",
+    headers: {
+      "Authorization": `Bearer ${token}`,
+    },
+  });
+
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.message || "Failed to delete product");
+  }
+}
+
+/**
+ * Get all products (admin only)
+ * GET /api/v1/products/
+ */
+export async function getAllProductsAdmin(token: string): Promise<Product[]> {
+  const response = await fetch(`${API_BASE}/products/`, {
+    headers: {
+      "Authorization": `Bearer ${token}`,
+    },
+  });
+
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.message || "Failed to get products");
+>>>>>>> origin/main
   }
 
   return response.json();

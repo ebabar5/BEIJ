@@ -1,4 +1,5 @@
 from fastapi import APIRouter, status, Header, HTTPException, Query
+from typing import List
 
 from app.schemas.user import (
     UserCreate, 
@@ -13,6 +14,7 @@ from app.schemas.user import (
 )
 from app.services.user_service import (
     create_user, 
+    create_admin_user,
     authenticate_user,
     authenticate_admin,
     save_item, 
@@ -20,6 +22,7 @@ from app.services.user_service import (
     get_saved_item_ids,
     get_user_profile,
     update_user_profile,
+    list_users,
     generate_reset_token,
     reset_password_with_token
 )
@@ -27,7 +30,6 @@ from app.services.token_service import invalidate_token
 from app.services.view_history_service import add_view, get_view_history
 from app.services.recommendation_service import get_recommendations
 from app.schemas.product import Product
-from typing import List
 
 # Router for all user-related endpoints
 # Includes authentication (register/login/logout), profile management, and saved items
@@ -35,6 +37,11 @@ router = APIRouter(
     prefix="/api/v1/users",
     tags=["users"]
 )
+
+@router.get("/", response_model=List[UserResponse], status_code=status.HTTP_200_OK)
+def get_all_users():
+    """Get all users (admin only)"""
+    return list_users()
 
 @router.post("/register", response_model=UserResponse, status_code=status.HTTP_201_CREATED)
 def register_user(payload: UserCreate):
@@ -49,6 +56,11 @@ def login_user(payload: UserLogin):
 @router.post("/admin/login", response_model=LoginResponse, status_code=status.HTTP_200_OK)
 def admin_login(payload: UserLogin):
     return authenticate_admin(payload)
+
+@router.post("/admin/register", response_model=UserResponse, status_code=status.HTTP_201_CREATED)
+def register_admin(payload: UserCreate, admin_secret: str = Query(..., description="Admin secret required to create admin users")):
+    """Register a new admin user (requires admin secret)"""
+    return create_admin_user(payload, admin_secret)
 
 @router.post("/logout", status_code=status.HTTP_200_OK)
 def logout_user(authorization: str = Header(None)):
