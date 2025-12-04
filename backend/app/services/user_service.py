@@ -10,9 +10,14 @@ import uuid
 import bcrypt
 import secrets
 import json
+import os
 from datetime import datetime, timedelta
 from fastapi import HTTPException
 from typing import List, Dict, Any
+
+# Reset token storage
+RESET_TOKENS_FILE = os.path.join(os.path.dirname(__file__), "../data/reset_tokens.json")
+RESET_TOKEN_EXPIRY_MINUTES = 15
 
 # constant + helper 
 BCRYPT_MAX_BYTES = 72
@@ -201,6 +206,10 @@ def authenticate_admin(user_login: UserLogin) -> LoginResponse:
         token=token_data["token"],
         expires_in=token_data["expires_in"]
     )
+
+# ============================================
+# Password Reset Functions
+# ============================================
 
 def _load_reset_tokens() -> List[Dict[str, Any]]:
     """Load reset tokens from file"""
