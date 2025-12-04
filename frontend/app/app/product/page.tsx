@@ -4,8 +4,9 @@ import Footer from "../components/Footer";
 import ProductActions from "../components/ProductActions";
 import ProductViewTracker from "./ProductViewTracker";
 import Recommendations from "../components/Recommendations";
+import RecordProductView from "../components/RecordProductView";
+import { API_BASE } from "../lib/api";
 
-const API_BASE = "http://host.docker.internal:8000/api/v1";//Use docker alias for localhost
 
 interface PageProps {
   params: Promise<{ slug: string[] }>;
@@ -13,7 +14,9 @@ interface PageProps {
 }
 
 async function getProduct(productId: string) {
-  const res = await fetch(`${API_BASE}/products/${productId}`, { cache: "no-store" });
+  const res = await fetch(`${API_BASE}/products/${productId}`, {
+    cache: "no-store",
+  });
   if (!res.ok) {
     return null;
   }
@@ -87,6 +90,9 @@ export default async function ProductPage({ params, searchParams }: PageProps) {
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-900 flex flex-col">
       <Header />
+
+      {/* Record that this product was viewed (client-side) */}
+      <RecordProductView productId={product.product_id} />
 
       <div className="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full">
         {/* Breadcrumb */}

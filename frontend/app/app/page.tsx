@@ -1,6 +1,8 @@
 import Link from "next/link";
 import Header from "./components/Header";
 import Footer from "./components/Footer";
+import RecentlyViewedSection from "./components/RecentlyViewedSection";
+
 
 const API_BASE = "http://host.docker.internal:8000/api/v1";//Changed local host to docker host ip
 
@@ -214,6 +216,11 @@ export default async function HomePage() {
           </div>
         </section>
       )}
+
+      
+      {/* Recently Viewed Products */}
+      <RecentlyViewedSection />
+
 
       {/* CTA Section */}
       <section className="py-16 lg:py-24">

@@ -57,3 +57,31 @@ def get_saved_item_ids(user_id: str) -> List[str]:
     if not isinstance(saved, list):
         saved = []
     return list(saved)
+
+def add_recently_viewed_item(user_id: str, product_id: str, max_items: int = 10) -> Dict[str, Any]:
+    users = load_all()
+    for user in users:
+        if user.get("user_id") == user_id:
+            rv = user.get("recently_viewed_ids")
+            if not isinstance(rv, list):
+                rv = []
+
+            if product_id in rv:
+                rv.remove(product_id)
+            rv.insert(0, product_id)
+
+            user["recently_viewed_ids"] = rv[:max_items]
+            save_all(users)
+            return user
+    raise NotFound("User not found")
+
+
+def get_recently_viewed_ids(user_id: str, limit: int = 4) -> List[str]:
+    user = get_user_by_id(user_id)
+    if user is None:
+        raise NotFound("User not found")
+
+    rv = user.get("recently_viewed_ids")
+    if not isinstance(rv, list):
+        rv = []
+    return rv[:limit]
