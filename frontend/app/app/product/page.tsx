@@ -1,6 +1,7 @@
 import Link from "next/link";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
+import ProductActions from "../components/ProductActions";
 
 const API_BASE = "http://localhost:8000/api/v1";
 
@@ -18,7 +19,7 @@ async function getProduct(productId: string) {
 }
 
 export default async function ProductPage({ params, searchParams }: PageProps) {
-  const sp = await searchParams;
+    const sp = await searchParams;
   const productId = Array.isArray(sp.id) ? sp.id[0] : sp.id;
 
   if (!productId) {
@@ -182,29 +183,14 @@ export default async function ProductPage({ params, searchParams }: PageProps) {
               </div>
 
               {/* Action Buttons */}
-              <div className="flex flex-col sm:flex-row gap-3 mb-6">
-                <a
-                  href={product.product_link}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex-1 flex items-center justify-center gap-2 px-6 py-3 bg-amber-500 hover:bg-amber-400 text-white font-medium rounded-lg transition-colors"
-                >
-                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 6H5.25A2.25 2.25 0 003 8.25v10.5A2.25 2.25 0 005.25 21h10.5A2.25 2.25 0 0018 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25" />
-                  </svg>
-                  View on Amazon
-                </a>
-                <button className="flex-1 flex items-center justify-center gap-2 px-6 py-3 bg-emerald-600 hover:bg-emerald-500 text-white font-medium rounded-lg transition-colors">
-                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z" />
-                  </svg>
-                  Save Item
-                </button>
-              </div>
+              <ProductActions
+                productId={product.product_id}
+                productLink={product.product_link}
+              />
 
               {/* About */}
               {formattedAbout.length > 0 && (
-                <div>
+        <div>
                   <h2 className="text-lg font-semibold text-slate-900 dark:text-white mb-3">About this item</h2>
                   <ul className="space-y-2">
                     {formattedAbout.map((line: string, index: number) => (
