@@ -5,6 +5,7 @@ services:
       context: ./backend
       dockerfile: Dockerfile
     container_name: beij-backend
+    image: beij-backend
     ports:
       - "8000:8000"
     expose:
@@ -27,6 +28,20 @@ services:
       retries: 3
       start_period: 40s
 
+    
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: beij-frontend
+    image: beij-frontend
+    ports:
+       - 3000:3000
+    expose:
+      - "3000"
+    networks:
+      - beij-network
+
   # Optional: Add a reverse proxy (nginx) for production
   nginx:
     image: nginx:alpine
@@ -47,6 +62,7 @@ services:
 
 networks:
   beij-network:
+    name: beij-network
     driver: bridge
 
 volumes:

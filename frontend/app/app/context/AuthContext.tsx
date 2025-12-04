@@ -35,7 +35,7 @@ const TOKEN_KEY = "beij_auth_token";
 const USER_KEY = "beij_auth_user";
 
 // API base URL
-const API_BASE = "http://localhost:8000/api/v1";
+const API_BASE = "http://host.docker.internal:8000/api/v1";
 
 // Provider component
 export function AuthProvider({ children }: { children: ReactNode }) {
