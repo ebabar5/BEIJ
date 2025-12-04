@@ -1,9 +1,13 @@
 from pathlib import Path
+import os
 from typing import List, Dict, Any
 from datetime import datetime
 from app.repositories.repository_helpers import load_json_data, save_json_data
 
-DATA_PATH = Path(__file__).resolve().parents[1] / "data" / "tokens.json"
+TOKENS_DIR = Path(os.environ.get("TOKENS_DIR", "/tmp"))
+TOKENS_DIR.mkdir(parents=True, exist_ok=True)
+
+DATA_PATH = TOKENS_DIR / "tokens.json"
 
 def load_all() -> List[Dict[str, Any]]:
     return load_json_data(DATA_PATH)

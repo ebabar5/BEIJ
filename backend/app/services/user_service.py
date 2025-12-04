@@ -14,7 +14,11 @@ from fastapi import HTTPException
 from typing import List, Dict, Any
 
 # Reset token storage
-RESET_TOKENS_FILE = os.path.join(os.path.dirname(__file__), "../data/reset_tokens.json")
+RESET_TOKENS_FILE = os.environ.get(
+    "RESET_TOKENS_FILE",
+    "/tmp/reset_tokens.json",   # default to /tmp for dev / Docker
+)
+
 RESET_TOKEN_EXPIRY_MINUTES = 15
 
 # constant + helper 

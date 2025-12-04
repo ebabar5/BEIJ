@@ -1,7 +1,16 @@
 // API utility functions for BEIJ frontend
 // This file contains all the functions to communicate with the backend
 
-const API_BASE = "http://localhost:8000/api/v1";
+// Central API base URL for all API calls.
+
+const isServer = typeof window === "undefined";
+
+export const API_BASE = isServer
+  // inside the Next.js container → talk to Docker service "backend"
+  ? process.env.INTERNAL_API_URL ?? "http://backend:8000/api/v1"
+  // in the browser → talk to localhost
+  : process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000/api/v1";
+
 
 // ============================================
 // Types
@@ -345,7 +354,6 @@ export async function getSavedItems(userId: string): Promise<string[]> {
 }
 
 // ============================================
-<<<<<<< HEAD
 // View History & Recommendations API Functions
 // ============================================
 
@@ -377,15 +385,18 @@ export async function trackProductView(userId: string, productId: string): Promi
  * Get user's viewing history
  * GET /api/v1/users/{user_id}/view-history
  */
-export async function getViewHistory(userId: string): Promise<Array<{ product_id: string; viewed_at: string }>> {
+export async function getViewHistory(
+  userId: string
+): Promise<Array<{ product_id: string; viewed_at: string }>> {
   const response = await fetch(`${API_BASE}/users/${userId}/view-history`);
 
   if (!response.ok) {
-    const error = await response.json();
+    const error = await response.json().catch(() => ({ message: "Failed to get view history" }));
     throw new Error(error.message || "Failed to get view history");
   }
 
   const data = await response.json();
+  // Adjust this if the backend shape changes
   return data.recently_viewed || [];
 }
 
@@ -405,7 +416,9 @@ export async function getRecommendations(
   params.set("limit", limit.toString());
 
   try {
-    const response = await fetch(`${API_BASE}/users/${userId}/recommendations?${params.toString()}`);
+    const response = await fetch(
+      `${API_BASE}/users/${userId}/recommendations?${params.toString()}`
+    );
 
     if (!response.ok) {
       const error = await response.json().catch(() => ({ message: "Failed to get recommendations" }));
@@ -434,12 +447,12 @@ export async function getRecommendations(
 export async function getAllUsers(token: string): Promise<User[]> {
   const response = await fetch(`${API_BASE}/users/`, {
     headers: {
-      "Authorization": `Bearer ${token}`,
+      Authorization: `Bearer ${token}`,
     },
   });
 
   if (!response.ok) {
-    const error = await response.json();
+    const error = await response.json().catch(() => ({ message: "Failed to get users" }));
     throw new Error(error.message || "Failed to get users");
   }
 
@@ -458,13 +471,13 @@ export async function createProductAdmin(
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      "Authorization": `Bearer ${token}`,
+      Authorization: `Bearer ${token}`,
     },
     body: JSON.stringify(product),
   });
 
   if (!response.ok) {
-    const error = await response.json();
+    const error = await response.json().catch(() => ({ message: "Failed to create product" }));
     throw new Error(error.message || "Failed to create product");
   }
 
@@ -484,13 +497,13 @@ export async function updateProductAdmin(
     method: "PUT",
     headers: {
       "Content-Type": "application/json",
-      "Authorization": `Bearer ${token}`,
+      Authorization: `Bearer ${token}`,
     },
     body: JSON.stringify(product),
   });
 
   if (!response.ok) {
-    const error = await response.json();
+    const error = await response.json().catch(() => ({ message: "Failed to update product" }));
     throw new Error(error.message || "Failed to update product");
   }
 
@@ -508,12 +521,12 @@ export async function deleteProductAdmin(
   const response = await fetch(`${API_BASE}/products/${productId}`, {
     method: "DELETE",
     headers: {
-      "Authorization": `Bearer ${token}`,
+      Authorization: `Bearer ${token}`,
     },
   });
 
   if (!response.ok) {
-    const error = await response.json();
+    const error = await response.json().catch(() => ({ message: "Failed to delete product" }));
     throw new Error(error.message || "Failed to delete product");
   }
 }
@@ -525,16 +538,16 @@ export async function deleteProductAdmin(
 export async function getAllProductsAdmin(token: string): Promise<Product[]> {
   const response = await fetch(`${API_BASE}/products/`, {
     headers: {
-      "Authorization": `Bearer ${token}`,
+      Authorization: `Bearer ${token}`,
     },
   });
 
   if (!response.ok) {
-    const error = await response.json();
+    const error = await response.json().catch(() => ({ message: "Failed to get products" }));
     throw new Error(error.message || "Failed to get products");
->>>>>>> origin/main
   }
 
   return response.json();
 }
+
 

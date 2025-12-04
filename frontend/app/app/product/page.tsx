@@ -5,8 +5,8 @@ import ProductActions from "../components/ProductActions";
 import ProductViewTracker from "./ProductViewTracker";
 import Recommendations from "../components/Recommendations";
 import RecordProductView from "../components/RecordProductView";
+import { API_BASE } from "../lib/api";
 
-const API_BASE = "http://host.docker.internal:8000/api/v1";//Use docker alias for localhost
 
 interface PageProps {
   params: Promise<{ slug: string[] }>;
@@ -14,7 +14,9 @@ interface PageProps {
 }
 
 async function getProduct(productId: string) {
-  const res = await fetch(`${API_BASE}/products/${productId}`, { cache: "no-store" });
+  const res = await fetch(`${API_BASE}/products/${productId}`, {
+    cache: "no-store",
+  });
   if (!res.ok) {
     return null;
   }
