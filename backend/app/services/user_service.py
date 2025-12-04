@@ -1,12 +1,20 @@
-from app.schemas.user import User, UserCreate, UserResponse, UserLogin, LoginResponse, UserUpdate
+from app.schemas.user import User, UserCreate, UserResponse, UserLogin, LoginResponse, UserUpdate, ForgotPasswordResponse, ResetPasswordResponse
 from app.repositories.users_repo import load_all, save_all
 from app.repositories.products_repo import load_all as load_products
 from app.services.token_service import generate_token
 from app.error_handling import NotFound, BadRequest
 import uuid
 import bcrypt
+import secrets
+import json
+import os
+from datetime import datetime, timedelta
 from fastapi import HTTPException
 from typing import List, Dict, Any
+
+# Reset token storage
+RESET_TOKENS_FILE = os.path.join(os.path.dirname(__file__), "../data/reset_tokens.json")
+RESET_TOKEN_EXPIRY_MINUTES = 15
 
 # constant + helper 
 BCRYPT_MAX_BYTES = 72
@@ -218,3 +226,100 @@ def authenticate_admin(user_login: UserLogin) -> LoginResponse:
         token=token_data["token"],
         expires_in=token_data["expires_in"]
     )
+
+
+# ============================================
+# Password Reset Functions
+# ============================================
+
+def _load_reset_tokens() -> List[Dict[str, Any]]:
+    """Load reset tokens from file"""
+    try:
+        with open(RESET_TOKENS_FILE, "r") as f:
+            return json.load(f)
+    except (FileNotFoundError, json.JSONDecodeError):
+        return []
+
+
+def _save_reset_tokens(tokens: List[Dict[str, Any]]) -> None:
+    """Save reset tokens to file"""
+    with open(RESET_TOKENS_FILE, "w") as f:
+        json.dump(tokens, f, indent=2)
+
+
+def _cleanup_expired_tokens(tokens: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    """Remove expired tokens"""
+    now = datetime.utcnow().isoformat()
+    return [t for t in tokens if t.get("expires_at", "") > now]
+
+
+def generate_reset_token(email: str) -> ForgotPasswordResponse:
+    """Generate a password reset token for the given email"""
+    users = load_all()
+    user = next((u for u in users if u.get("email") == email), None)
+    
+    if user is None:
+        # For security, don't reveal if email exists or not
+        # But for demo purposes, we'll raise an error
+        raise HTTPException(status_code=404, detail="No account found with this email address.")
+    
+    # Generate a secure random token
+    token = secrets.token_urlsafe(32)
+    expires_at = datetime.utcnow() + timedelta(minutes=RESET_TOKEN_EXPIRY_MINUTES)
+    
+    # Load existing tokens and cleanup expired ones
+    tokens = _load_reset_tokens()
+    tokens = _cleanup_expired_tokens(tokens)
+    
+    # Remove any existing tokens for this user
+    tokens = [t for t in tokens if t.get("user_id") != user["user_id"]]
+    
+    # Add new token
+    tokens.append({
+        "token": token,
+        "user_id": user["user_id"],
+        "email": email,
+        "expires_at": expires_at.isoformat(),
+        "created_at": datetime.utcnow().isoformat()
+    })
+    
+    _save_reset_tokens(tokens)
+    
+    return ForgotPasswordResponse(
+        message="Reset token generated. In production, this would be sent to your email.",
+        reset_token=token,
+        expires_in=RESET_TOKEN_EXPIRY_MINUTES * 60  # in seconds
+    )
+
+
+def reset_password_with_token(token: str, new_password: str) -> ResetPasswordResponse:
+    """Reset password using a valid token"""
+    tokens = _load_reset_tokens()
+    tokens = _cleanup_expired_tokens(tokens)
+    
+    # Find the token
+    token_data = next((t for t in tokens if t.get("token") == token), None)
+    
+    if token_data is None:
+        raise HTTPException(status_code=400, detail="Invalid or expired reset token.")
+    
+    # Check if token is expired
+    expires_at = datetime.fromisoformat(token_data["expires_at"])
+    if datetime.utcnow() > expires_at:
+        raise HTTPException(status_code=400, detail="Reset token has expired.")
+    
+    # Update the user's password
+    users = load_all()
+    user = find_user(users, token_data["user_id"])
+    
+    if user is None:
+        raise HTTPException(status_code=404, detail="User not found.")
+    
+    user["hashed_password"] = hash_password(new_password)
+    save_all(users)
+    
+    # Remove the used token
+    tokens = [t for t in tokens if t.get("token") != token]
+    _save_reset_tokens(tokens)
+    
+    return ResetPasswordResponse(message="Password has been reset successfully.")
