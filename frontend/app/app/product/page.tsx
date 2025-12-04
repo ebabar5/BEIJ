@@ -1,4 +1,6 @@
 import Link from "next/link";
+import Header from "../components/Header";
+import Footer from "../components/Footer";
 
 const API_BASE = "http://localhost:8000/api/v1";
 
@@ -21,17 +23,21 @@ export default async function ProductPage({ params, searchParams }: PageProps) {
 
   if (!productId) {
     return (
-      <div className="min-h-screen bg-slate-50 dark:bg-slate-900 flex items-center justify-center">
-        <div className="text-center">
-          <h1 className="text-2xl font-bold text-slate-900 dark:text-white mb-4">Product Not Found</h1>
-          <p className="text-slate-500 dark:text-slate-400 mb-6">Please navigate from a product listing.</p>
-          <Link
-            href="/listings"
-            className="inline-flex items-center gap-2 px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-500 transition-colors"
-          >
-            ← Back to Products
-          </Link>
+      <div className="min-h-screen bg-slate-50 dark:bg-slate-900 flex flex-col">
+        <Header />
+        <div className="flex-1 flex items-center justify-center">
+          <div className="text-center">
+            <h1 className="text-2xl font-bold text-slate-900 dark:text-white mb-4">Product Not Found</h1>
+            <p className="text-slate-500 dark:text-slate-400 mb-6">Please navigate from a product listing.</p>
+            <Link
+              href="/listings"
+              className="inline-flex items-center gap-2 px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-500 transition-colors"
+            >
+              ← Back to Products
+            </Link>
+          </div>
         </div>
+        <Footer />
       </div>
     );
   }
@@ -40,17 +46,21 @@ export default async function ProductPage({ params, searchParams }: PageProps) {
 
   if (!product) {
     return (
-      <div className="min-h-screen bg-slate-50 dark:bg-slate-900 flex items-center justify-center">
-        <div className="text-center">
-          <h1 className="text-2xl font-bold text-slate-900 dark:text-white mb-4">Product Not Found</h1>
-          <p className="text-slate-500 dark:text-slate-400 mb-6">This product doesn&apos;t exist or has been removed.</p>
-          <Link
-            href="/listings"
-            className="inline-flex items-center gap-2 px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-500 transition-colors"
-          >
-            ← Back to Products
-          </Link>
+      <div className="min-h-screen bg-slate-50 dark:bg-slate-900 flex flex-col">
+        <Header />
+        <div className="flex-1 flex items-center justify-center">
+          <div className="text-center">
+            <h1 className="text-2xl font-bold text-slate-900 dark:text-white mb-4">Product Not Found</h1>
+            <p className="text-slate-500 dark:text-slate-400 mb-6">This product doesn&apos;t exist or has been removed.</p>
+            <Link
+              href="/listings"
+              className="inline-flex items-center gap-2 px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-500 transition-colors"
+            >
+              ← Back to Products
+            </Link>
+          </div>
         </div>
+        <Footer />
       </div>
     );
   }
@@ -72,27 +82,10 @@ export default async function ProductPage({ params, searchParams }: PageProps) {
   const hasHalfStar = product.rating % 1 >= 0.5;
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-900">
-      {/* Header */}
-      <header className="bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 sticky top-0 z-30">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16">
-            <Link href="/" className="flex items-center gap-2">
-              <span className="text-2xl font-bold text-emerald-600">BEIJ</span>
-            </Link>
-            <nav className="flex items-center gap-6">
-              <Link href="/listings" className="text-sm font-medium text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white">
-                Products
-              </Link>
-              <Link href="/users" className="text-sm font-medium text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white">
-                Account
-              </Link>
-            </nav>
-          </div>
-        </div>
-      </header>
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-900 flex flex-col">
+      <Header />
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full">
         {/* Breadcrumb */}
         <nav className="flex items-center gap-2 text-sm mb-6">
           <Link href="/listings" className="text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200">
@@ -114,9 +107,6 @@ export default async function ProductPage({ params, searchParams }: PageProps) {
                   src={product.img_link}
                   alt={product.product_name}
                   className="w-full h-full object-contain p-8"
-                  onError={(e) => {
-                    (e.target as HTMLImageElement).style.display = 'none';
-                  }}
                 />
               ) : (
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1} stroke="currentColor" className="w-24 h-24 text-slate-300 dark:text-slate-600">
@@ -131,12 +121,13 @@ export default async function ProductPage({ params, searchParams }: PageProps) {
               {product.category && product.category.length > 0 && (
                 <div className="flex flex-wrap gap-2 mb-4">
                   {product.category.slice(0, 3).map((cat: string) => (
-                    <span
+                    <Link
                       key={cat}
-                      className="px-2 py-1 bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 text-xs rounded-md"
+                      href={`/listings?cat=${cat}`}
+                      className="px-2 py-1 bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 text-xs rounded-md hover:bg-emerald-100 dark:hover:bg-emerald-900/30 hover:text-emerald-700 dark:hover:text-emerald-400 transition-colors"
                     >
                       {cat.replace(/([A-Z])/g, ' $1').trim()}
-                    </span>
+                    </Link>
                   ))}
                 </div>
               )}
@@ -244,6 +235,8 @@ export default async function ProductPage({ params, searchParams }: PageProps) {
           </Link>
         </div>
       </div>
+
+      <Footer />
     </div>
   );
 }

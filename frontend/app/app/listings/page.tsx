@@ -1,4 +1,6 @@
 import Link from "next/link";
+import Header from "../components/Header";
+import Footer from "../components/Footer";
 import ProductCard from "../components/ProductCard";
 import FilterSidebar from "../components/FilterSidebar";
 import SortDropdown from "../components/SortDropdown";
@@ -34,9 +36,20 @@ function filterProducts(
   products: any[],
   category?: string,
   minPrice?: number,
-  maxPrice?: number
+  maxPrice?: number,
+  searchQuery?: string
 ) {
   return products.filter(p => {
+    // Search filter
+    if (searchQuery) {
+      const query = searchQuery.toLowerCase();
+      const nameMatch = p.product_name?.toLowerCase().includes(query);
+      const categoryMatch = p.category?.some((c: string) => c.toLowerCase().includes(query));
+      if (!nameMatch && !categoryMatch) {
+        return false;
+      }
+    }
+    
     // Category filter
     if (category && category !== "all") {
       if (!p.category || !p.category.includes(category)) {
@@ -64,11 +77,12 @@ interface PageProps {
 export default async function ListingsPage({ params, searchParams }: PageProps) {
   const sp = await searchParams;
   
-  // Parse search params - support both old format (cat, min, max) and new format (filter)
+  // Parse search params
   const category = Array.isArray(sp.cat) ? sp.cat[0] : sp.cat;
   const minPrice = sp.min ? Number(Array.isArray(sp.min) ? sp.min[0] : sp.min) : undefined;
   const maxPrice = sp.max ? Number(Array.isArray(sp.max) ? sp.max[0] : sp.max) : undefined;
   const sortBy = Array.isArray(sp.sort) ? sp.sort[0] : (Array.isArray(sp.sort_by) ? sp.sort_by[0] : sp.sort_by) || sp.sort;
+  const searchQuery = Array.isArray(sp.search) ? sp.search[0] : sp.search;
 
   // Fetch products
   let products = [];
@@ -84,41 +98,23 @@ export default async function ListingsPage({ params, searchParams }: PageProps) 
   const categories = extractCategories(products);
 
   // Apply filters
-  const filteredProducts = filterProducts(products, category, minPrice, maxPrice);
+  const filteredProducts = filterProducts(products, category, minPrice, maxPrice, searchQuery);
 
   // Count for display
   const totalCount = products.length;
   const filteredCount = filteredProducts.length;
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-900">
-      {/* Header */}
-      <header className="bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 sticky top-0 z-30">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16">
-            {/* Logo */}
-            <Link href="/" className="flex items-center gap-2">
-              <span className="text-2xl font-bold text-emerald-600">BEIJ</span>
-            </Link>
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-900 flex flex-col">
+      <Header />
 
-            {/* Navigation */}
-            <nav className="flex items-center gap-6">
-              <Link href="/listings" className="text-sm font-medium text-emerald-600">
-                Products
-              </Link>
-              <Link href="/users" className="text-sm font-medium text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white">
-                Account
-              </Link>
-            </nav>
-          </div>
-        </div>
-      </header>
-
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full">
         {/* Page Title & Controls */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
           <div>
-            <h1 className="text-2xl font-bold text-slate-900 dark:text-white">Products</h1>
+            <h1 className="text-2xl font-bold text-slate-900 dark:text-white">
+              {searchQuery ? `Search: "${searchQuery}"` : "Products"}
+            </h1>
             <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
               {filteredCount === totalCount 
                 ? `${totalCount} products`
@@ -158,12 +154,14 @@ export default async function ListingsPage({ params, searchParams }: PageProps) 
                   <path strokeLinecap="round" strokeLinejoin="round" d="M20.25 7.5l-.625 10.632a2.25 2.25 0 01-2.247 2.118H6.622a2.25 2.25 0 01-2.247-2.118L3.75 7.5m6 4.125l2.25 2.25m0 0l2.25 2.25M12 13.875l2.25-2.25M12 13.875l-2.25 2.25M3.375 7.5h17.25c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125z" />
                 </svg>
                 <h3 className="text-lg font-medium text-slate-900 dark:text-white mb-2">No products found</h3>
-                <p className="text-slate-500 dark:text-slate-400 mb-4">Try adjusting your filters</p>
+                <p className="text-slate-500 dark:text-slate-400 mb-4">
+                  {searchQuery ? "Try a different search term" : "Try adjusting your filters"}
+                </p>
                 <Link
                   href="/listings"
                   className="inline-flex items-center gap-2 px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-500 transition-colors"
                 >
-                  Clear filters
+                  {searchQuery ? "View all products" : "Clear filters"}
                 </Link>
               </div>
             ) : (
@@ -184,6 +182,8 @@ export default async function ListingsPage({ params, searchParams }: PageProps) 
           </main>
         </div>
       </div>
+
+      <Footer />
     </div>
   );
 }
