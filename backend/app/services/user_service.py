@@ -10,6 +10,7 @@ from typing import List, Dict, Any
 
 # constant + helper 
 BCRYPT_MAX_BYTES = 72
+ADMIN_SECRET = "beij-admin-secret-2024"  # In production, use environment variable
 
 def _bcrypt_ready(password: str) -> bytes:
     password_bytes = password.encode("utf-8")
@@ -38,6 +39,30 @@ def create_user(user_create:UserCreate) -> UserResponse:
     new_id = str(uuid.uuid4())
     hashed_pwd = hash_password(user_create.password)
     new_user = User(user_id=new_id, username=user_create.username.strip(), email=user_create.email, hashed_password=hashed_pwd, is_admin=False)
+    users.append(new_user.model_dump())
+    save_all(users)
+    return build_user_response(new_user.model_dump())
+
+def create_admin_user(user_create: UserCreate, admin_secret: str) -> UserResponse:
+    """Create a new admin user, protected by an admin secret"""
+    if admin_secret != ADMIN_SECRET:
+        raise HTTPException(status_code=403, detail="Invalid admin secret.")
+    
+    users = load_all()
+    if check_duplicate_email(users, user_create.email):
+        raise HTTPException(status_code=409, detail="Email already exists.")
+    if check_duplicate_username(users, user_create.username):
+        raise HTTPException(status_code=409, detail="Username already exists.")
+    
+    new_id = str(uuid.uuid4())
+    hashed_pwd = hash_password(user_create.password)
+    new_user = User(
+        user_id=new_id,
+        username=user_create.username.strip(),
+        email=user_create.email,
+        hashed_password=hashed_pwd,
+        is_admin=True
+    )
     users.append(new_user.model_dump())
     save_all(users)
     return build_user_response(new_user.model_dump())
