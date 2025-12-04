@@ -1,6 +1,7 @@
 "use client";
 
 import SaveButton from "./SaveButton";
+import CompareButton from "./CompareButton";
 
 interface ProductActionsProps {
   productId: string;
@@ -24,6 +25,10 @@ export default function ProductActions({ productId, productLink }: ProductAction
       <SaveButton
         productId={productId}
         className="flex-1 px-6 py-3 font-medium rounded-lg"
+      />
+      <CompareButton
+        productId={productId}
+        className="flex-1"
       />
     </div>
   );
