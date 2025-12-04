@@ -1,4 +1,4 @@
-from fastapi import APIRouter, status, Header, HTTPException
+from fastapi import APIRouter, status, Header, HTTPException, Query
 
 from app.schemas.user import UserCreate, UserResponse, UserLogin, LoginResponse, UserUpdate
 from app.services.user_service import (
@@ -12,6 +12,10 @@ from app.services.user_service import (
     update_user_profile
 )
 from app.services.token_service import invalidate_token
+from app.services.view_history_service import add_view, get_view_history
+from app.services.recommendation_service import get_recommendations
+from app.schemas.product import Product
+from typing import List
 
 # Router for all user-related endpoints
 # Includes authentication (register/login/logout), profile management, and saved items
@@ -45,13 +49,29 @@ def logout_user(authorization: str = Header(None)):
     invalidate_token(token)
     return {"message": "Logged out successfully"}
 
-@router.get("/{user_id}", response_model=UserResponse, status_code=status.HTTP_200_OK)
-def get_profile(user_id: str):
-    return get_user_profile(user_id)
+# Specific routes must come before parameterized routes
+# View history and recommendations endpoints (before /{user_id})
+@router.post("/{user_id}/view-history/{product_id}", status_code=status.HTTP_200_OK)
+def track_product_view(user_id: str, product_id: str):
+    """Track a product view for a user"""
+    view_history = add_view(user_id, product_id)
+    return {"user_id": user_id, "recently_viewed": view_history}
 
-@router.put("/{user_id}", response_model=UserResponse, status_code=status.HTTP_200_OK)
-def update_profile(user_id: str, payload: UserUpdate):
-    return update_user_profile(user_id, payload)
+@router.get("/{user_id}/view-history", status_code=status.HTTP_200_OK)
+def get_view_history_user(user_id: str):
+    """Get user's viewing history"""
+    view_history = get_view_history(user_id)
+    return {"user_id": user_id, "recently_viewed": view_history}
+
+@router.get("/{user_id}/recommendations", response_model=List[Product], status_code=status.HTTP_200_OK)
+def get_user_recommendations(
+    user_id: str,
+    exclude_product_id: str = Query(None, description="Product ID to exclude from recommendations"),
+    limit: int = Query(8, ge=1, le=20, description="Maximum number of recommendations to return")
+):
+    """Get product recommendations for a user"""
+    recommendations = get_recommendations(user_id, limit=limit, exclude_product_id=exclude_product_id)
+    return recommendations
 
 @router.post("/{user_id}/saved-items/{product_id}")
 def save_item_user(user_id: str, product_id: str):
@@ -70,4 +90,13 @@ def get_saved_items_user(user_id: str):
     """Get user's saved items"""
     saved_ids = get_saved_item_ids(user_id)
     return {"user_id": user_id, "saved_item_ids": saved_ids}
+
+# Parameterized routes must come after specific routes
+@router.get("/{user_id}", response_model=UserResponse, status_code=status.HTTP_200_OK)
+def get_profile(user_id: str):
+    return get_user_profile(user_id)
+
+@router.put("/{user_id}", response_model=UserResponse, status_code=status.HTTP_200_OK)
+def update_profile(user_id: str, payload: UserUpdate):
+    return update_user_profile(user_id, payload)
 

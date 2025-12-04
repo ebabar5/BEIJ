@@ -2,6 +2,8 @@ import Link from "next/link";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
 import ProductActions from "../components/ProductActions";
+import ProductViewTracker from "./ProductViewTracker";
+import Recommendations from "../components/Recommendations";
 
 const API_BASE = "http://localhost:8000/api/v1";
 
@@ -220,6 +222,12 @@ export default async function ProductPage({ params, searchParams }: PageProps) {
             Back to all products
           </Link>
         </div>
+
+        {/* Track Product View */}
+        <ProductViewTracker productId={product.product_id} />
+
+        {/* Recommendations - Only show if user is logged in */}
+        <Recommendations currentProductId={product.product_id} />
       </div>
 
       <Footer />

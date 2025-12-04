@@ -318,3 +318,72 @@ export async function getSavedItems(userId: string): Promise<string[]> {
   return data.saved_item_ids;
 }
 
+// ============================================
+// View History & Recommendations API Functions
+// ============================================
+
+/**
+ * Track a product view
+ * POST /api/v1/users/{user_id}/view-history/{product_id}
+ */
+export async function trackProductView(userId: string, productId: string): Promise<void> {
+  try {
+    const response = await fetch(`${API_BASE}/users/${userId}/view-history/${productId}`, {
+      method: "POST",
+    });
+
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({ message: "Failed to track product view" }));
+      throw new Error(error.message || "Failed to track product view");
+    }
+  } catch (err) {
+    // Handle network errors (Failed to fetch) gracefully
+    if (err instanceof TypeError && err.message === "Failed to fetch") {
+      console.warn("Network error tracking product view - backend may be unreachable");
+      return; // Silently fail for network errors
+    }
+    throw err; // Re-throw other errors
+  }
+}
+
+/**
+ * Get user's viewing history
+ * GET /api/v1/users/{user_id}/view-history
+ */
+export async function getViewHistory(userId: string): Promise<Array<{ product_id: string; viewed_at: string }>> {
+  const response = await fetch(`${API_BASE}/users/${userId}/view-history`);
+
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.message || "Failed to get view history");
+  }
+
+  const data = await response.json();
+  return data.recently_viewed || [];
+}
+
+/**
+ * Get product recommendations for a user
+ * GET /api/v1/users/{user_id}/recommendations?exclude_product_id=XXX&limit=8
+ */
+export async function getRecommendations(
+  userId: string,
+  excludeProductId?: string,
+  limit: number = 8
+): Promise<Product[]> {
+  const params = new URLSearchParams();
+  if (excludeProductId) {
+    params.set("exclude_product_id", excludeProductId);
+  }
+  params.set("limit", limit.toString());
+
+  const response = await fetch(`${API_BASE}/users/${userId}/recommendations?${params.toString()}`);
+
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.message || "Failed to get recommendations");
+  }
+
+  return response.json();
+}
+
