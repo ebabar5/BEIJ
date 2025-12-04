@@ -40,6 +40,22 @@ class UserUpdate(BaseModel):
     password: Optional[str] = Field(None,min_length=8)
 
 
+class ForgotPasswordRequest(BaseModel):
+    email: EmailStr
 
+
+class ForgotPasswordResponse(BaseModel):
+    message: str
+    reset_token: str  # In production, this would be sent via email, not returned
+    expires_in: int  # seconds
+
+
+class ResetPasswordRequest(BaseModel):
+    token: str
+    new_password: str = Field(..., min_length=8)
+
+
+class ResetPasswordResponse(BaseModel):
+    message: str
 
     
