@@ -345,7 +345,6 @@ export async function getSavedItems(userId: string): Promise<string[]> {
 }
 
 // ============================================
-<<<<<<< HEAD
 // View History & Recommendations API Functions
 // ============================================
 
@@ -360,16 +359,17 @@ export async function trackProductView(userId: string, productId: string): Promi
     });
 
     if (!response.ok) {
-      const error = await response.json().catch(() => ({ message: "Failed to track product view" }));
-      throw new Error(error.message || "Failed to track product view");
+      // Silently fail - this is a non-critical feature
+      console.warn(`Failed to track product view: ${response.status}`);
+      return;
     }
   } catch (err) {
-    // Handle network errors (Failed to fetch) gracefully
+    // Silently handle all errors - this is a non-critical feature
     if (err instanceof TypeError && err.message === "Failed to fetch") {
       console.warn("Network error tracking product view - backend may be unreachable");
-      return; // Silently fail for network errors
     }
-    throw err; // Re-throw other errors
+    // Don't throw - silently fail
+    return;
   }
 }
 
@@ -408,18 +408,19 @@ export async function getRecommendations(
     const response = await fetch(`${API_BASE}/users/${userId}/recommendations?${params.toString()}`);
 
     if (!response.ok) {
-      const error = await response.json().catch(() => ({ message: "Failed to get recommendations" }));
-      throw new Error(error.message || "Failed to get recommendations");
+      // Silently fail - return empty array for non-critical feature
+      console.warn(`Failed to get recommendations: ${response.status}`);
+      return [];
     }
 
     return response.json();
   } catch (err) {
-    // Handle network errors (Failed to fetch) gracefully
+    // Handle all errors gracefully - return empty array for non-critical feature
     if (err instanceof TypeError && err.message === "Failed to fetch") {
       console.warn("Network error getting recommendations - backend may be unreachable");
-      return []; // Return empty array for network errors
     }
-    throw err; // Re-throw other errors
+    // Return empty array instead of throwing
+    return [];
   }
 }
 
@@ -532,7 +533,6 @@ export async function getAllProductsAdmin(token: string): Promise<Product[]> {
   if (!response.ok) {
     const error = await response.json();
     throw new Error(error.message || "Failed to get products");
->>>>>>> origin/main
   }
 
   return response.json();
