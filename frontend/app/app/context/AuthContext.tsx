@@ -1,6 +1,7 @@
 "use client";
 
 import { createContext, useContext, useState, useEffect, ReactNode } from "react";
+import { getSavedItems, saveItem, unsaveItem } from "../lib/api";
 
 // Types for our auth system
 export interface User {
@@ -15,12 +16,15 @@ export interface AuthState {
   token: string | null;
   isLoading: boolean;
   isAuthenticated: boolean;
+  savedItems: string[];
 }
 
 export interface AuthContextType extends AuthState {
   login: (user: User, token: string, rememberMe: boolean) => void;
   logout: () => Promise<void>;
   updateUser: (user: User) => void;
+  toggleSaveItem: (productId: string) => Promise<void>;
+  isItemSaved: (productId: string) => boolean;
 }
 
 // Create the context
@@ -38,6 +42,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [token, setToken] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [savedItems, setSavedItems] = useState<string[]>([]);
 
   // On mount, check for existing auth in localStorage
   useEffect(() => {
@@ -57,6 +62,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
     setIsLoading(false);
   }, []);
+
+  // Fetch saved items when user logs in
+  useEffect(() => {
+    if (user) {
+      getSavedItems(user.user_id)
+        .then(items => setSavedItems(items))
+        .catch(err => console.error("Failed to fetch saved items:", err));
+    } else {
+      setSavedItems([]);
+    }
+  }, [user]);
 
   // Login function - stores auth data
   const login = (userData: User, authToken: string, rememberMe: boolean) => {
@@ -118,14 +134,44 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
+  // Toggle save/unsave item
+  const toggleSaveItem = async (productId: string) => {
+    if (!user) {
+      throw new Error("Must be logged in to save items");
+    }
+
+    try {
+      if (savedItems.includes(productId)) {
+        // Unsave
+        const updatedItems = await unsaveItem(user.user_id, productId);
+        setSavedItems(updatedItems);
+      } else {
+        // Save
+        const updatedItems = await saveItem(user.user_id, productId);
+        setSavedItems(updatedItems);
+      }
+    } catch (err) {
+      console.error("Failed to toggle save item:", err);
+      throw err;
+    }
+  };
+
+  // Check if item is saved
+  const isItemSaved = (productId: string): boolean => {
+    return savedItems.includes(productId);
+  };
+
   const value: AuthContextType = {
     user,
     token,
     isLoading,
     isAuthenticated: !!user && !!token,
+    savedItems,
     login,
     logout,
     updateUser,
+    toggleSaveItem,
+    isItemSaved,
   };
 
   return (

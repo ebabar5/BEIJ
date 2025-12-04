@@ -76,6 +76,24 @@ export default function UsersPage() {
                 </Link>
 
                 <Link
+                  href="/users/saved"
+                  className="flex items-center gap-3 w-full p-4 bg-slate-700/30 hover:bg-slate-700/50 rounded-lg transition-colors group"
+                >
+                  <div className="w-10 h-10 bg-pink-500/20 rounded-lg flex items-center justify-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5 text-pink-400">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z" />
+                    </svg>
+                  </div>
+                  <div className="flex-1">
+                    <p className="text-white font-medium">Saved Items</p>
+                    <p className="text-slate-500 text-sm">View your saved products</p>
+                  </div>
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5 text-slate-500 group-hover:text-slate-400 transition-colors">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
+                  </svg>
+                </Link>
+
+                <Link
                   href="/listings"
                   className="flex items-center gap-3 w-full p-4 bg-slate-700/30 hover:bg-slate-700/50 rounded-lg transition-colors group"
                 >
