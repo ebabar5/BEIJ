@@ -58,6 +58,24 @@ export default function UsersPage() {
 
               <div className="space-y-3">
                 <Link
+                  href="/users/profile"
+                  className="flex items-center gap-3 w-full p-4 bg-slate-700/30 hover:bg-slate-700/50 rounded-lg transition-colors group"
+                >
+                  <div className="w-10 h-10 bg-blue-500/20 rounded-lg flex items-center justify-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5 text-blue-400">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
+                    </svg>
+                  </div>
+                  <div className="flex-1">
+                    <p className="text-white font-medium">My Profile</p>
+                    <p className="text-slate-500 text-sm">View and edit your account</p>
+                  </div>
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5 text-slate-500 group-hover:text-slate-400 transition-colors">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
+                  </svg>
+                </Link>
+
+                <Link
                   href="/listings"
                   className="flex items-center gap-3 w-full p-4 bg-slate-700/30 hover:bg-slate-700/50 rounded-lg transition-colors group"
                 >
