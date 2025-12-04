@@ -1,6 +1,16 @@
 from fastapi import APIRouter, status, Header, HTTPException
 
-from app.schemas.user import UserCreate, UserResponse, UserLogin, LoginResponse, UserUpdate
+from app.schemas.user import (
+    UserCreate, 
+    UserResponse, 
+    UserLogin, 
+    LoginResponse, 
+    UserUpdate,
+    ForgotPasswordRequest,
+    ForgotPasswordResponse,
+    ResetPasswordRequest,
+    ResetPasswordResponse
+)
 from app.services.user_service import (
     create_user, 
     authenticate_user,
@@ -9,7 +19,9 @@ from app.services.user_service import (
     unsave_item, 
     get_saved_item_ids,
     get_user_profile,
-    update_user_profile
+    update_user_profile,
+    generate_reset_token,
+    reset_password_with_token
 )
 from app.services.token_service import invalidate_token
 
@@ -44,6 +56,20 @@ def logout_user(authorization: str = Header(None)):
     token = authorization.replace("Bearer ", "") if authorization.startswith("Bearer ") else authorization
     invalidate_token(token)
     return {"message": "Logged out successfully"}
+
+
+@router.post("/forgot-password", response_model=ForgotPasswordResponse, status_code=status.HTTP_200_OK)
+def forgot_password(payload: ForgotPasswordRequest):
+    """Generate a password reset token for the given email.
+    In production, this token would be sent via email.
+    For demo purposes, it's returned in the response."""
+    return generate_reset_token(payload.email)
+
+
+@router.post("/reset-password", response_model=ResetPasswordResponse, status_code=status.HTTP_200_OK)
+def reset_password(payload: ResetPasswordRequest):
+    """Reset password using a valid reset token"""
+    return reset_password_with_token(payload.token, payload.new_password)
 
 @router.get("/{user_id}", response_model=UserResponse, status_code=status.HTTP_200_OK)
 def get_profile(user_id: str):
