@@ -1,0 +1,31 @@
+Format: In-person meeting/remote Attendance
+Meeting Start: 6:35 pm
+Meeting End: 6:55 pm
+
+Attendance:
+-Eshan
+-Beab
+-Isaac
+-Logan[remote]
+
+
+Topics:
+
+Current State of the project:
+- frontend mostly complete. The skeleton has been filled out
+- currently running without erros. just warnings
+
+What still needs to be done:
+- admin interface - beab
+- m4 document - all
+- video demo - all
+- frontend docker - isaac
+
+External API:
+- amazon price get - planned - waiting for approval
+
+Individual additional functionallity: (All currently waiting on TA approval)
+- Eshan - Price comparison
+- Beab - Product recommendations
+- Isaac - External API/get current price from amazon
+- Logan - Recently viewed listings
