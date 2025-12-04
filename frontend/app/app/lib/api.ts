@@ -1,7 +1,7 @@
 // API utility functions for BEIJ frontend
 // This file contains all the functions to communicate with the backend
 
-import { API_BASE } from "../context/APIAddress";
+import { API_CLIENT_BASE } from "../context/APIAddress";
 
 // ============================================
 // Types
@@ -38,7 +38,7 @@ export async function registerUser(
   email: string,
   password: string
 ): Promise<User> {
-  const response = await fetch(`${API_BASE}/users/register`, {
+  const response = await fetch(`${API_CLIENT_BASE}/users/register`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -63,7 +63,7 @@ export async function loginUser(
   password: string,
   rememberMe: boolean = false
 ): Promise<LoginResponse> {
-  const response = await fetch(`${API_BASE}/users/login`, {
+  const response = await fetch(`${API_CLIENT_BASE}/users/login`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -93,7 +93,7 @@ export async function registerAdmin(
   password: string,
   adminSecret: string
 ): Promise<User> {
-  const response = await fetch(`${API_BASE}/users/admin/register?admin_secret=${encodeURIComponent(adminSecret)}`, {
+  const response = await fetch(`${API_CLIENT_BASE}/users/admin/register?admin_secret=${encodeURIComponent(adminSecret)}`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -118,7 +118,7 @@ export async function loginAdmin(
   password: string,
   rememberMe: boolean = false
 ): Promise<LoginResponse> {
-  const response = await fetch(`${API_BASE}/users/admin/login`, {
+  const response = await fetch(`${API_CLIENT_BASE}/users/admin/login`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -143,7 +143,7 @@ export async function loginAdmin(
  * POST /api/v1/users/logout
  */
 export async function logoutUser(token: string): Promise<void> {
-  const response = await fetch(`${API_BASE}/users/logout`, {
+  const response = await fetch(`${API_CLIENT_BASE}/users/logout`, {
     method: "POST",
     headers: {
       "Authorization": `Bearer ${token}`,
@@ -161,7 +161,7 @@ export async function logoutUser(token: string): Promise<void> {
  * GET /api/v1/users/{user_id}
  */
 export async function getUserProfile(userId: string): Promise<User> {
-  const response = await fetch(`${API_BASE}/users/${userId}`);
+  const response = await fetch(`${API_CLIENT_BASE}/users/${userId}`);
 
   if (!response.ok) {
     const error = await response.json();
@@ -183,7 +183,7 @@ export async function updateUserProfile(
     password?: string;
   }
 ): Promise<User> {
-  const response = await fetch(`${API_BASE}/users/${userId}`, {
+  const response = await fetch(`${API_CLIENT_BASE}/users/${userId}`, {
     method: "PUT",
     headers: {
       "Content-Type": "application/json",
@@ -229,7 +229,7 @@ export interface ProductPreview {
  * GET /api/v1/previews/
  */
 export async function getProductPreviews(): Promise<ProductPreview[]> {
-  const response = await fetch(`${API_BASE}/previews/`);
+  const response = await fetch(`${API_CLIENT_BASE}/previews/`);
 
   if (!response.ok) {
     throw new Error("Failed to fetch products");
@@ -243,7 +243,7 @@ export async function getProductPreviews(): Promise<ProductPreview[]> {
  * GET /api/v1/previews/{filter}
  */
 export async function getFilteredPreviews(filter: string): Promise<ProductPreview[]> {
-  const response = await fetch(`${API_BASE}/previews/${filter}`);
+  const response = await fetch(`${API_CLIENT_BASE}/previews/${filter}`);
 
   if (!response.ok) {
     throw new Error("Failed to fetch filtered products");
@@ -257,7 +257,7 @@ export async function getFilteredPreviews(filter: string): Promise<ProductPrevie
  * GET /api/v1/products/{product_id}
  */
 export async function getProduct(productId: string): Promise<Product> {
-  const response = await fetch(`${API_BASE}/products/${productId}`);
+  const response = await fetch(`${API_CLIENT_BASE}/products/${productId}`);
 
   if (!response.ok) {
     const error = await response.json();
@@ -279,7 +279,7 @@ export async function searchProducts(
     ? `${keywords}&${filter}` 
     : keywords;
   
-  const response = await fetch(`${API_BASE}/previews/search/${searchPath}`);
+  const response = await fetch(`${API_CLIENT_BASE}/previews/search/${searchPath}`);
 
   if (!response.ok) {
     throw new Error("Search failed");
@@ -297,7 +297,7 @@ export async function searchProducts(
  * POST /api/v1/users/{user_id}/saved-items/{product_id}
  */
 export async function saveItem(userId: string, productId: string): Promise<string[]> {
-  const response = await fetch(`${API_BASE}/users/${userId}/saved-items/${productId}`, {
+  const response = await fetch(`${API_CLIENT_BASE}/users/${userId}/saved-items/${productId}`, {
     method: "POST",
   });
 
@@ -315,7 +315,7 @@ export async function saveItem(userId: string, productId: string): Promise<strin
  * DELETE /api/v1/users/{user_id}/saved-items/{product_id}
  */
 export async function unsaveItem(userId: string, productId: string): Promise<string[]> {
-  const response = await fetch(`${API_BASE}/users/${userId}/saved-items/${productId}`, {
+  const response = await fetch(`${API_CLIENT_BASE}/users/${userId}/saved-items/${productId}`, {
     method: "DELETE",
   });
 
@@ -333,7 +333,7 @@ export async function unsaveItem(userId: string, productId: string): Promise<str
  * GET /api/v1/users/{user_id}/saved-items
  */
 export async function getSavedItems(userId: string): Promise<string[]> {
-  const response = await fetch(`${API_BASE}/users/${userId}/saved-items`);
+  const response = await fetch(`${API_CLIENT_BASE}/users/${userId}/saved-items`);
 
   if (!response.ok) {
     const error = await response.json();
@@ -344,18 +344,13 @@ export async function getSavedItems(userId: string): Promise<string[]> {
   return data.saved_item_ids;
 }
 
-// ============================================
-<<<<<<< HEAD
-// View History & Recommendations API Functions
-// ============================================
-
 /**
  * Track a product view
  * POST /api/v1/users/{user_id}/view-history/{product_id}
  */
 export async function trackProductView(userId: string, productId: string): Promise<void> {
   try {
-    const response = await fetch(`${API_BASE}/users/${userId}/view-history/${productId}`, {
+    const response = await fetch(`${API_CLIENT_BASE}/users/${userId}/view-history/${productId}`, {
       method: "POST",
     });
 
@@ -378,7 +373,7 @@ export async function trackProductView(userId: string, productId: string): Promi
  * GET /api/v1/users/{user_id}/view-history
  */
 export async function getViewHistory(userId: string): Promise<Array<{ product_id: string; viewed_at: string }>> {
-  const response = await fetch(`${API_BASE}/users/${userId}/view-history`);
+  const response = await fetch(`${API_CLIENT_BASE}/users/${userId}/view-history`);
 
   if (!response.ok) {
     const error = await response.json();
@@ -405,7 +400,7 @@ export async function getRecommendations(
   params.set("limit", limit.toString());
 
   try {
-    const response = await fetch(`${API_BASE}/users/${userId}/recommendations?${params.toString()}`);
+    const response = await fetch(`${API_CLIENT_BASE}/users/${userId}/recommendations?${params.toString()}`);
 
     if (!response.ok) {
       const error = await response.json().catch(() => ({ message: "Failed to get recommendations" }));
@@ -432,7 +427,7 @@ export async function getRecommendations(
  * GET /api/v1/users/
  */
 export async function getAllUsers(token: string): Promise<User[]> {
-  const response = await fetch(`${API_BASE}/users/`, {
+  const response = await fetch(`${API_CLIENT_BASE}/users/`, {
     headers: {
       "Authorization": `Bearer ${token}`,
     },
@@ -454,7 +449,7 @@ export async function createProductAdmin(
   product: Partial<Product>,
   token: string
 ): Promise<Product> {
-  const response = await fetch(`${API_BASE}/products/`, {
+  const response = await fetch(`${API_CLIENT_BASE}/products/`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -480,7 +475,7 @@ export async function updateProductAdmin(
   product: Partial<Product>,
   token: string
 ): Promise<Product> {
-  const response = await fetch(`${API_BASE}/products/${productId}`, {
+  const response = await fetch(`${API_CLIENT_BASE}/products/${productId}`, {
     method: "PUT",
     headers: {
       "Content-Type": "application/json",
@@ -505,7 +500,7 @@ export async function deleteProductAdmin(
   productId: string,
   token: string
 ): Promise<void> {
-  const response = await fetch(`${API_BASE}/products/${productId}`, {
+  const response = await fetch(`${API_CLIENT_BASE}/products/${productId}`, {
     method: "DELETE",
     headers: {
       "Authorization": `Bearer ${token}`,
@@ -523,7 +518,7 @@ export async function deleteProductAdmin(
  * GET /api/v1/products/
  */
 export async function getAllProductsAdmin(token: string): Promise<Product[]> {
-  const response = await fetch(`${API_BASE}/products/`, {
+  const response = await fetch(`${API_CLIENT_BASE}/products/`, {
     headers: {
       "Authorization": `Bearer ${token}`,
     },
@@ -532,7 +527,6 @@ export async function getAllProductsAdmin(token: string): Promise<Product[]> {
   if (!response.ok) {
     const error = await response.json();
     throw new Error(error.message || "Failed to get products");
->>>>>>> origin/main
   }
 
   return response.json();

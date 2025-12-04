@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useCompare } from "../context/CompareContext";
-import { API_BASE } from "../context/APIAddress";
+import { BackendAddress } from "../context/APIAddress";
 
 interface ProductPreview {
   product_id: string;
@@ -28,7 +28,7 @@ export default function CompareBar() {
       try {
         const results = await Promise.all(
           compareIds.map(async (id) => {
-            const res = await fetch(`${API_BASE}/products/${id}`);
+            const res = await fetch(`${BackendAddress()}/products/${id}`);
             if (!res.ok) return null;
             return res.json();
           })

@@ -4,13 +4,13 @@ import Footer from "../components/Footer";
 import ProductCard from "../components/ProductCard";
 import FilterSidebar from "../components/FilterSidebar";
 import SortDropdown from "../components/SortDropdown";
-import { API_BASE } from "../context/APIAddress";
+import { BackendAddress } from "../context/APIAddress";
 
 // Fetch all products with full data (includes images)
 async function getProducts(sortBy?: string) {
   const url = sortBy 
-    ? `${API_BASE}/products/?sort_by=${sortBy}`
-    : `${API_BASE}/products/`;
+    ? `${BackendAddress()}/products/?sort_by=${sortBy}`
+    : `${BackendAddress()}/products/`;
   
   const res = await fetch(url, { cache: "no-store" });
   if (!res.ok) {

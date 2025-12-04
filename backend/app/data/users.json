@@ -19,6 +19,9 @@
     "username": "Test-Isaac",
     "email": "IsaacKM100@gmail.com",
     "hashed_password": "$2b$12$GlA0z54IPDM0PSYmvOLpmumAzwsbKWCPTWKjn4707XlBkUnNnqyOG",
-    "is_admin": false
+    "is_admin": false,
+    "saved_item_ids": [
+      "B06Y36JKC3"
+    ]
   }
 ]

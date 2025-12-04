@@ -2,7 +2,7 @@
 
 import { createContext, useContext, useState, useEffect, ReactNode } from "react";
 import { getSavedItems, saveItem, unsaveItem } from "../lib/api";
-import { API_BASE } from "./APIAddress";
+import { BackendAddress } from "./APIAddress";
 
 // Types for our auth system
 export interface User {
@@ -97,7 +97,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     // Call logout API to invalidate token on server
     if (currentToken) {
       try {
-        await fetch(`${API_BASE}/users/logout`, {
+        await fetch(`${BackendAddress()}/users/logout`, {
           method: "POST",
           headers: {
             "Authorization": `Bearer ${currentToken}`,

@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useCompare } from "../context/CompareContext";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
-import { API_BASE } from "../context/APIAddress";
+import { API_CLIENT_BASE } from "../context/APIAddress";
 
 interface Product {
   product_id: string;
@@ -33,7 +33,7 @@ export default function ComparePage() {
           [0, 1].map(async (index) => {
             const id = compareIds[index];
             if (!id) return null;
-            const res = await fetch(`${API_BASE}/products/${id}`);
+            const res = await fetch(`${API_CLIENT_BASE}/products/${id}`);
             if (!res.ok) return null;
             return res.json();
           })

@@ -4,7 +4,7 @@ import Footer from "../components/Footer";
 import ProductActions from "../components/ProductActions";
 import ProductViewTracker from "./ProductViewTracker";
 import Recommendations from "../components/Recommendations";
-import { API_BASE } from "../context/APIAddress";
+import { BackendAddress } from "../context/APIAddress";
 
 interface PageProps {
   params: Promise<{ slug: string[] }>;
@@ -12,7 +12,7 @@ interface PageProps {
 }
 
 async function getProduct(productId: string) {
-  const res = await fetch(`${API_BASE}/products/${productId}`, { cache: "no-store" });
+  const res = await fetch(`${BackendAddress()}/products/${productId}`, { cache: "no-store" });
   if (!res.ok) {
     return null;
   }
