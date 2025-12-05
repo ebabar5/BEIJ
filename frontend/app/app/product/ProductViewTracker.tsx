@@ -8,19 +8,18 @@ interface ProductViewTrackerProps {
   productId: string;
 }
 
-export default function ProductViewTracker({ productId }: ProductViewTrackerProps) {
+export default function ProductViewTracker({
+  productId,
+}: ProductViewTrackerProps) {
   const { user, isAuthenticated } = useAuth();
+  const userId = user?.user_id;
 
   useEffect(() => {
-    if (isAuthenticated && user && productId) {
-      // Track the view asynchronously (don't block page load)
-      trackProductView(user.user_id, productId).catch((err) => {
-        // Silently fail - don't disrupt user experience
-        console.error("Failed to track product view:", err);
-      });
-    }
-  }, [isAuthenticated, user, productId]);
+    if (!isAuthenticated || !userId || !productId) return;
 
-  return null; // This component doesn't render anything
+    // Fire-and-forget; trackProductView already swallows errors
+    void trackProductView(userId, productId);
+  }, [isAuthenticated, userId, productId]);
+
+  return null;
 }
-

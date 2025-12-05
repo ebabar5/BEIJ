@@ -359,25 +359,45 @@ export async function getSavedItems(userId: string): Promise<string[]> {
 
 /**
  * Track a product view
- * POST /api/v1/users/{user_id}/view-history/{product_id}
+ * POST /api/v1/users/{user_id}/recently-viewed/{product_id}
  */
-export async function trackProductView(userId: string, productId: string): Promise<void> {
-  try {
-    const response = await fetch(`${API_BASE}/users/${userId}/view-history/${productId}`, {
-      method: "POST",
-    });
+export async function trackProductView(
+  userId: string,
+  productId: string,
+): Promise<void> {
+  // No user/product? Nothing to do.
+  if (!userId || !productId) return;
 
+  try {
+    const response = await fetch(
+      `${API_BASE}/users/${userId}/recently-viewed/${productId}`,
+      {
+        method: "POST",
+      },
+    );
+
+    // Best-effort: don't throw on non-OK
     if (!response.ok) {
-      const error = await response.json().catch(() => ({ message: "Failed to track product view" }));
-      throw new Error(error.message || "Failed to track product view");
+      if (process.env.NODE_ENV === "development") {
+        let body: unknown;
+        try {
+          body = await response.json();
+        } catch {
+          body = await response.text().catch(() => null);
+        }
+        console.warn(
+          "[trackProductView] non-OK:",
+          response.status,
+          body,
+        );
+      }
+      return;
     }
   } catch (err) {
-    // Handle network errors (Failed to fetch) gracefully
-    if (err instanceof TypeError && err.message === "Failed to fetch") {
-      console.warn("Network error tracking product view - backend may be unreachable");
-      return; // Silently fail for network errors
+    if (process.env.NODE_ENV === "development") {
+      console.warn("[trackProductView] error:", err);
     }
-    throw err; // Re-throw other errors
+    // swallow – tracking is best-effort
   }
 }
 
@@ -386,18 +406,36 @@ export async function trackProductView(userId: string, productId: string): Promi
  * GET /api/v1/users/{user_id}/view-history
  */
 export async function getViewHistory(
-  userId: string
+  userId: string,
 ): Promise<Array<{ product_id: string; viewed_at: string }>> {
-  const response = await fetch(`${API_BASE}/users/${userId}/view-history`);
+  try {
+    const response = await fetch(`${API_BASE}/users/${userId}/view-history`);
 
-  if (!response.ok) {
-    const error = await response.json().catch(() => ({ message: "Failed to get view history" }));
-    throw new Error(error.message || "Failed to get view history");
+    if (!response.ok) {
+      if (process.env.NODE_ENV === "development") {
+        let body: unknown;
+        try {
+          body = await response.json();
+        } catch {
+          body = await response.text().catch(() => null);
+        }
+        console.warn(
+          "[getViewHistory] non-OK:",
+          response.status,
+          body,
+        );
+      }
+      return [];
+    }
+
+    const data = await response.json();
+    return data.recently_viewed || [];
+  } catch (err) {
+    if (process.env.NODE_ENV === "development") {
+      console.warn("[getViewHistory] error:", err);
+    }
+    return [];
   }
-
-  const data = await response.json();
-  // Adjust this if the backend shape changes
-  return data.recently_viewed || [];
 }
 
 /**
@@ -407,8 +445,10 @@ export async function getViewHistory(
 export async function getRecommendations(
   userId: string,
   excludeProductId?: string,
-  limit: number = 8
+  limit: number = 8,
 ): Promise<Product[]> {
+  if (!userId) return [];
+
   const params = new URLSearchParams();
   if (excludeProductId) {
     params.set("exclude_product_id", excludeProductId);
@@ -417,24 +457,35 @@ export async function getRecommendations(
 
   try {
     const response = await fetch(
-      `${API_BASE}/users/${userId}/recommendations?${params.toString()}`
+      `${API_BASE}/users/${userId}/recommendations?${params.toString()}`,
     );
 
     if (!response.ok) {
-      const error = await response.json().catch(() => ({ message: "Failed to get recommendations" }));
-      throw new Error(error.message || "Failed to get recommendations");
+      if (process.env.NODE_ENV === "development") {
+        let body: unknown;
+        try {
+          body = await response.json();
+        } catch {
+          body = await response.text().catch(() => null);
+        }
+        console.warn(
+          "[getRecommendations] non-OK:",
+          response.status,
+          body,
+        );
+      }
+      return [];
     }
 
     return response.json();
   } catch (err) {
-    // Handle network errors (Failed to fetch) gracefully
-    if (err instanceof TypeError && err.message === "Failed to fetch") {
-      console.warn("Network error getting recommendations - backend may be unreachable");
-      return []; // Return empty array for network errors
+    if (process.env.NODE_ENV === "development") {
+      console.warn("[getRecommendations] error:", err);
     }
-    throw err; // Re-throw other errors
+    return [];
   }
 }
+
 
 // ============================================
 // Admin API Functions
