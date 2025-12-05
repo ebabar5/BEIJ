@@ -19,10 +19,16 @@ async function getProduct(productId: string) {
   return res.json();
 }
 
-//Get the live price from amazon usint the product link
-async function getLivePrice(amazonURL: string){
-  if(amazonURL === null || amazonURL === undefined){return null;}
-  const res = await fetch(amazonURL, {
+// Get the live price from Amazon using the product link
+// Note: This uses web scraping which may be unreliable due to Amazon's bot detection
+async function getLivePrice(amazonURL: string): Promise<string | null> {
+  // Validate URL exists
+  if (!amazonURL) {
+    return null;
+  }
+
+  try {
+    const res = await fetch(amazonURL, {
       headers: {
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:145.0) Gecko/20100101 Firefox/145.0',
         'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
@@ -31,18 +37,36 @@ async function getLivePrice(amazonURL: string){
         'Connection': 'close'
       },
     });
-  if (!res.ok){console.log("live price not OK");return null;}
 
-  const html = await res.text();
-  //Parse HTML to get the price. It is held in a span with Class "a-price-whole"
+    if (!res.ok) {
+      console.log("Live price fetch failed with status:", res.status);
+      return null;
+    }
 
-  const spanRegex = /<span[^>]*class="[^"]*a-price-whole[^"]*"[^>]*>([^<]*)<\/span>/i;
-  const match = html.match(spanRegex);
-  if(!match === null){
-    console.log("Live price: ", match[1]);
-    return(match[1]);}
-  console.log("Null live price");
-  return null;
+    const html = await res.text();
+
+    // Parse HTML to get the price from span with class "a-price-whole"
+    // This regex looks for the price in Amazon's standard price element structure
+    const spanRegex = /<span[^>]*class="[^"]*a-price-whole[^"]*"[^>]*>([^<]+)<\/span>/i;
+    const match = html.match(spanRegex);
+
+    // FIX: The original code had "if(!match === null)" which is always false
+    // Correct logic: check if match exists (is not null)
+    if (match && match[1]) {
+      // Clean the price - remove commas and whitespace
+      const cleanPrice = match[1].replace(/,/g, '').trim();
+      console.log("Live price found:", cleanPrice);
+      return cleanPrice;
+    }
+
+    console.log("Could not find price in Amazon page HTML");
+    return null;
+
+  } catch (error) {
+    // Handle network errors, timeouts, etc.
+    console.error("Error fetching live price:", error);
+    return null;
+  }
 }
 
 export default async function ProductPage({ params, searchParams }: PageProps) {
@@ -72,8 +96,7 @@ export default async function ProductPage({ params, searchParams }: PageProps) {
 
   const product = await getProduct(productId);
 
-  const live_price = await getLivePrice(product.product_link);
-  
+  // FIX: Check if product exists BEFORE trying to access product_link
   if (!product) {
     return (
       <div className="min-h-screen bg-slate-50 dark:bg-slate-900 flex flex-col">
@@ -94,6 +117,9 @@ export default async function ProductPage({ params, searchParams }: PageProps) {
       </div>
     );
   }
+
+  // Now safe to access product properties - fetch live price from Amazon
+  const live_price = await getLivePrice(product.product_link);
 
   // Format the about text
   const formattedAbout = product.about_product
@@ -209,10 +235,18 @@ export default async function ProductPage({ params, searchParams }: PageProps) {
                       </span>
                     </>
                   )}
-                  <span className="text-3xl font-bold text-green dark:text-green">
-                    Live Price: ₹{live_price}
-                  </span>
                 </div>
+                {/* Only show live price if successfully fetched from Amazon */}
+                {live_price && (
+                  <div className="mt-3 flex items-center gap-2">
+                    <span className="text-lg font-semibold text-emerald-600 dark:text-emerald-400">
+                      Amazon Live Price: ₹{live_price}
+                    </span>
+                    <span className="text-xs text-slate-500 dark:text-slate-400">
+                      (fetched from Amazon)
+                    </span>
+                  </div>
+                )}
               </div>
 
               {/* Action Buttons */}
