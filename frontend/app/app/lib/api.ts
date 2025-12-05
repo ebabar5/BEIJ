@@ -359,7 +359,7 @@ export async function getSavedItems(userId: string): Promise<string[]> {
 
 /**
  * Track a product view
- * POST /api/v1/users/{user_id}/view-history/{product_id}
+ * POST /api/v1/users/{user_id}/recently-viewed/{product_id}
  */
 export async function trackProductView(userId: string, productId: string): Promise<void> {
   try {
@@ -368,37 +368,73 @@ export async function trackProductView(userId: string, productId: string): Promi
     });
 
     if (!response.ok) {
-      // Silently fail - this is a non-critical feature
-      console.warn(`Failed to track product view: ${response.status}`);
+      // In dev, log detailed info
+      if (process.env.NODE_ENV === "development") {
+        let body: unknown;
+        try {
+          body = await response.json();
+        } catch {
+          body = await response.text().catch(() => null);
+        }
+        console.warn("[trackProductView] non-OK:", response.status, body);
+      } else {
+        // In non-dev, just a simple warning
+        console.warn(`Failed to track product view: ${response.status}`);
+      }
+      // Always swallow – this is a non-critical feature
       return;
     }
   } catch (err) {
-    // Silently handle all errors - this is a non-critical feature
+    if (process.env.NODE_ENV === "development") {
+      console.warn("[trackProductView] error:", err);
+    }
+
+    // Special-case network errors, but still swallow
     if (err instanceof TypeError && err.message === "Failed to fetch") {
       console.warn("Network error tracking product view - backend may be unreachable");
     }
-    // Don't throw - silently fail
+
+    // Tracking is best-effort: never throw
     return;
   }
 }
+
 
 /**
  * Get user's viewing history
  * GET /api/v1/users/{user_id}/view-history
  */
 export async function getViewHistory(
-  userId: string
+  userId: string,
 ): Promise<Array<{ product_id: string; viewed_at: string }>> {
-  const response = await fetch(`${API_BASE}/users/${userId}/view-history`);
+  try {
+    const response = await fetch(`${API_BASE}/users/${userId}/view-history`);
 
-  if (!response.ok) {
-    const error = await response.json().catch(() => ({ message: "Failed to get view history" }));
-    throw new Error(error.message || "Failed to get view history");
+    if (!response.ok) {
+      if (process.env.NODE_ENV === "development") {
+        let body: unknown;
+        try {
+          body = await response.json();
+        } catch {
+          body = await response.text().catch(() => null);
+        }
+        console.warn(
+          "[getViewHistory] non-OK:",
+          response.status,
+          body,
+        );
+      }
+      return [];
+    }
+
+    const data = await response.json();
+    return data.recently_viewed || [];
+  } catch (err) {
+    if (process.env.NODE_ENV === "development") {
+      console.warn("[getViewHistory] error:", err);
+    }
+    return [];
   }
-
-  const data = await response.json();
-  // Adjust this if the backend shape changes
-  return data.recently_viewed || [];
 }
 
 /**
@@ -422,21 +458,39 @@ export async function getRecommendations(
     );
 
     if (!response.ok) {
-      // Silently fail - return empty array for non-critical feature
-      console.warn(`Failed to get recommendations: ${response.status}`);
+      // Detailed logging in dev
+      if (process.env.NODE_ENV === "development") {
+        let body: unknown;
+        try {
+          body = await response.json();
+        } catch {
+          body = await response.text().catch(() => null);
+        }
+        console.warn("[getRecommendations] non-OK:", response.status, body);
+      } else {
+        // Simpler logging elsewhere
+        console.warn(`Failed to get recommendations: ${response.status}`);
+      }
+      // Non-critical feature → just return empty list
       return [];
     }
 
     return response.json();
   } catch (err) {
-    // Handle all errors gracefully - return empty array for non-critical feature
+    if (process.env.NODE_ENV === "development") {
+      console.warn("[getRecommendations] error:", err);
+    }
+
     if (err instanceof TypeError && err.message === "Failed to fetch") {
       console.warn("Network error getting recommendations - backend may be unreachable");
     }
-    // Return empty array instead of throwing
+
+    // Non-critical: never throw, just return empty
     return [];
   }
 }
+
+
 
 // ============================================
 // Admin API Functions
