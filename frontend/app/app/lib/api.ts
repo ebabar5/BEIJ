@@ -368,6 +368,7 @@ export async function trackProductView(userId: string, productId: string): Promi
     });
 
     if (!response.ok) {
+      // In dev, log detailed info
       if (process.env.NODE_ENV === "development") {
         let body: unknown;
         try {
@@ -377,19 +378,23 @@ export async function trackProductView(userId: string, productId: string): Promi
         }
         console.warn("[trackProductView] non-OK:", response.status, body);
       } else {
-        // Silently fail - this is a non-critical feature
+        // In non-dev, just a simple warning
         console.warn(`Failed to track product view: ${response.status}`);
       }
+      // Always swallow – this is a non-critical feature
       return;
     }
   } catch (err) {
     if (process.env.NODE_ENV === "development") {
       console.warn("[trackProductView] error:", err);
-    } else if (err instanceof TypeError && err.message === "Failed to fetch") {
-      // Silently handle network errors - this is a non-critical feature
+    }
+
+    // Special-case network errors, but still swallow
+    if (err instanceof TypeError && err.message === "Failed to fetch") {
       console.warn("Network error tracking product view - backend may be unreachable");
     }
-    // Don't throw – tracking is best-effort
+
+    // Tracking is best-effort: never throw
     return;
   }
 }
@@ -453,6 +458,7 @@ export async function getRecommendations(
     );
 
     if (!response.ok) {
+      // Detailed logging in dev
       if (process.env.NODE_ENV === "development") {
         let body: unknown;
         try {
@@ -462,9 +468,10 @@ export async function getRecommendations(
         }
         console.warn("[getRecommendations] non-OK:", response.status, body);
       } else {
-        // Silently fail - return empty array for non-critical feature
+        // Simpler logging elsewhere
         console.warn(`Failed to get recommendations: ${response.status}`);
       }
+      // Non-critical feature → just return empty list
       return [];
     }
 
@@ -472,11 +479,13 @@ export async function getRecommendations(
   } catch (err) {
     if (process.env.NODE_ENV === "development") {
       console.warn("[getRecommendations] error:", err);
-    } else if (err instanceof TypeError && err.message === "Failed to fetch") {
-      // Handle all errors gracefully - return empty array for non-critical feature
+    }
+
+    if (err instanceof TypeError && err.message === "Failed to fetch") {
       console.warn("Network error getting recommendations - backend may be unreachable");
     }
-    // Return empty array instead of throwing
+
+    // Non-critical: never throw, just return empty
     return [];
   }
 }
