@@ -12,6 +12,7 @@ from app.schemas.user import (
     ResetPasswordRequest,
     ResetPasswordResponse
 )
+from app.schemas.product import Product
 from app.services.user_service import (
     create_user, 
     create_admin_user,
@@ -24,13 +25,11 @@ from app.services.user_service import (
     update_user_profile,
     list_users,
     generate_reset_token,
-    reset_password_with_token
+    reset_password_with_token,
+    add_recently_viewed,
+    get_recently_viewed_products
 )
 from app.services.token_service import invalidate_token
-from app.services.view_history_service import add_view, get_view_history
-from app.services.recommendation_service import get_recommendations
-from app.schemas.product import Product
-
 # Router for all user-related endpoints
 # Includes authentication (register/login/logout), profile management, and saved items
 router = APIRouter(
@@ -73,6 +72,7 @@ def logout_user(authorization: str = Header(None)):
     invalidate_token(token)
     return {"message": "Logged out successfully"}
 
+
 @router.post("/forgot-password", response_model=ForgotPasswordResponse, status_code=status.HTTP_200_OK)
 def forgot_password(payload: ForgotPasswordRequest):
     """Generate a password reset token for the given email.
@@ -80,34 +80,36 @@ def forgot_password(payload: ForgotPasswordRequest):
     For demo purposes, it's returned in the response."""
     return generate_reset_token(payload.email)
 
+
 @router.post("/reset-password", response_model=ResetPasswordResponse, status_code=status.HTTP_200_OK)
 def reset_password(payload: ResetPasswordRequest):
     """Reset password using a valid reset token"""
     return reset_password_with_token(payload.token, payload.new_password)
 
-# Specific routes must come before parameterized routes
-# View history and recommendations endpoints (before /{user_id})
-@router.post("/{user_id}/view-history/{product_id}", status_code=status.HTTP_200_OK)
-def track_product_view(user_id: str, product_id: str):
-    """Track a product view for a user"""
-    view_history = add_view(user_id, product_id)
-    return {"user_id": user_id, "recently_viewed": view_history}
+@router.get("/{user_id}", response_model=UserResponse, status_code=status.HTTP_200_OK)
+def get_profile(user_id: str):
+    return get_user_profile(user_id)
 
-@router.get("/{user_id}/view-history", status_code=status.HTTP_200_OK)
-def get_view_history_user(user_id: str):
-    """Get user's viewing history"""
-    view_history = get_view_history(user_id)
-    return {"user_id": user_id, "recently_viewed": view_history}
+@router.put("/{user_id}", response_model=UserResponse, status_code=status.HTTP_200_OK)
+def update_profile(user_id: str, payload: UserUpdate):
+    return update_user_profile(user_id, payload)
 
-@router.get("/{user_id}/recommendations", response_model=List[Product], status_code=status.HTTP_200_OK)
-def get_user_recommendations(
-    user_id: str,
-    exclude_product_id: str = Query(None, description="Product ID to exclude from recommendations"),
-    limit: int = Query(8, ge=1, le=20, description="Maximum number of recommendations to return")
-):
-    """Get product recommendations for a user"""
-    recommendations = get_recommendations(user_id, limit=limit, exclude_product_id=exclude_product_id)
-    return recommendations
+@router.get("/{user_id}", response_model=UserResponse)
+def get_user_profile_endpoint(user_id: str):
+    """
+    GET /api/v1/users/{user_id}
+    Used by profile-management + error-handling tests.
+    """
+    return get_user_profile(user_id)
+    
+@router.put("/{user_id}", response_model=UserResponse)
+def update_user_profile_endpoint(user_id: str, payload: UserUpdate):
+    """
+    PUT /api/v1/users/{user_id}
+    Updates username / email / password.
+    """
+    return update_user_profile(user_id, payload)
+
 
 @router.post("/{user_id}/saved-items/{product_id}")
 def save_item_user(user_id: str, product_id: str):
@@ -127,12 +129,28 @@ def get_saved_items_user(user_id: str):
     saved_ids = get_saved_item_ids(user_id)
     return {"user_id": user_id, "saved_item_ids": saved_ids}
 
-# Parameterized routes must come after specific routes
-@router.get("/{user_id}", response_model=UserResponse, status_code=status.HTTP_200_OK)
-def get_profile(user_id: str):
-    return get_user_profile(user_id)
+@router.post(
+    "/{user_id}/recently-viewed/{product_id}",
+    summary="Add recently viewed item",
+)
+def add_recently_viewed_endpoint(user_id: str, product_id: str):
+    rv_ids = add_recently_viewed(user_id, product_id)
+    return {"user_id": user_id, "recently_viewed_ids": rv_ids}
 
-@router.put("/{user_id}", response_model=UserResponse, status_code=status.HTTP_200_OK)
-def update_profile(user_id: str, payload: UserUpdate):
-    return update_user_profile(user_id, payload)
+
+@router.get(
+    "/{user_id}/recently-viewed",
+    response_model=List[Product],
+    summary="Get recently viewed products",
+)
+def get_recently_viewed_endpoint(
+    user_id: str,
+    limit: int = Query(
+        4,
+        ge=1,
+        le=20,
+        description="Max number of recently viewed items to return",
+    ),
+):
+    return get_recently_viewed_products(user_id, limit=limit)
 

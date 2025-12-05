@@ -41,6 +41,9 @@ services:
       - "3000"
     networks:
       - beij-network
+    environment:
+      - INTERNAL_API_URL=http://backend:8000/api/v1
+      - NEXT_PUBLIC_API_URL=http://localhost:8000/api/v1
 
   # Optional: Add a reverse proxy (nginx) for production
   nginx:
