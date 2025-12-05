@@ -361,22 +361,12 @@ export async function getSavedItems(userId: string): Promise<string[]> {
  * Track a product view
  * POST /api/v1/users/{user_id}/recently-viewed/{product_id}
  */
-export async function trackProductView(
-  userId: string,
-  productId: string,
-): Promise<void> {
-  // No user/product? Nothing to do.
-  if (!userId || !productId) return;
-
+export async function trackProductView(userId: string, productId: string): Promise<void> {
   try {
-    const response = await fetch(
-      `${API_BASE}/users/${userId}/recently-viewed/${productId}`,
-      {
-        method: "POST",
-      },
-    );
+    const response = await fetch(`${API_BASE}/users/${userId}/view-history/${productId}`, {
+      method: "POST",
+    });
 
-    // Best-effort: don't throw on non-OK
     if (!response.ok) {
       if (process.env.NODE_ENV === "development") {
         let body: unknown;
@@ -385,21 +375,25 @@ export async function trackProductView(
         } catch {
           body = await response.text().catch(() => null);
         }
-        console.warn(
-          "[trackProductView] non-OK:",
-          response.status,
-          body,
-        );
+        console.warn("[trackProductView] non-OK:", response.status, body);
+      } else {
+        // Silently fail - this is a non-critical feature
+        console.warn(`Failed to track product view: ${response.status}`);
       }
       return;
     }
   } catch (err) {
     if (process.env.NODE_ENV === "development") {
       console.warn("[trackProductView] error:", err);
+    } else if (err instanceof TypeError && err.message === "Failed to fetch") {
+      // Silently handle network errors - this is a non-critical feature
+      console.warn("Network error tracking product view - backend may be unreachable");
     }
-    // swallow – tracking is best-effort
+    // Don't throw – tracking is best-effort
+    return;
   }
 }
+
 
 /**
  * Get user's viewing history
@@ -445,10 +439,8 @@ export async function getViewHistory(
 export async function getRecommendations(
   userId: string,
   excludeProductId?: string,
-  limit: number = 8,
+  limit: number = 8
 ): Promise<Product[]> {
-  if (!userId) return [];
-
   const params = new URLSearchParams();
   if (excludeProductId) {
     params.set("exclude_product_id", excludeProductId);
@@ -457,7 +449,7 @@ export async function getRecommendations(
 
   try {
     const response = await fetch(
-      `${API_BASE}/users/${userId}/recommendations?${params.toString()}`,
+      `${API_BASE}/users/${userId}/recommendations?${params.toString()}`
     );
 
     if (!response.ok) {
@@ -468,11 +460,10 @@ export async function getRecommendations(
         } catch {
           body = await response.text().catch(() => null);
         }
-        console.warn(
-          "[getRecommendations] non-OK:",
-          response.status,
-          body,
-        );
+        console.warn("[getRecommendations] non-OK:", response.status, body);
+      } else {
+        // Silently fail - return empty array for non-critical feature
+        console.warn(`Failed to get recommendations: ${response.status}`);
       }
       return [];
     }
@@ -481,10 +472,15 @@ export async function getRecommendations(
   } catch (err) {
     if (process.env.NODE_ENV === "development") {
       console.warn("[getRecommendations] error:", err);
+    } else if (err instanceof TypeError && err.message === "Failed to fetch") {
+      // Handle all errors gracefully - return empty array for non-critical feature
+      console.warn("Network error getting recommendations - backend may be unreachable");
     }
+    // Return empty array instead of throwing
     return [];
   }
 }
+
 
 
 // ============================================
