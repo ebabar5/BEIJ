@@ -23,5 +23,26 @@
     "saved_item_ids": [
       "B06Y36JKC3"
     ]
+  },
+  {
+    "user_id": "88e4d628-4542-4908-9544-06ac35f6c997",
+    "username": "test5",
+    "email": "test5@yahoo.com",
+    "hashed_password": "$2b$12$ozegQ84fFwNGUVND1lpfn.9G9LiGfrMermoncQl9JMgKCf8.i/fBG",
+    "is_admin": false,
+    "recently_viewed_ids": [
+      "B09RFB2SJQ",
+      "B08TGG316Z"
+    ]
+  },
+  {
+    "user_id": "bcadf772-e828-4633-a441-f5f241126948",
+    "username": "test12",
+    "email": "beabgirma44@gmail.com",
+    "hashed_password": "$2b$12$ekbLoOJFfRigtc86dDfFFeoBM5CLc6.8jitZkNrqilNKtY0/vJpnK",
+    "is_admin": false,
+    "recently_viewed_ids": [
+      "B0BMZ6SY89"
+    ]
   }
 ]

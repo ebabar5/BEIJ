@@ -88,30 +88,6 @@ def reset_password(payload: ResetPasswordRequest):
     """Reset password using a valid reset token"""
     return reset_password_with_token(payload.token, payload.new_password)
 
-@router.get("/{user_id}", response_model=UserResponse, status_code=status.HTTP_200_OK)
-def get_profile(user_id: str):
-    return get_user_profile(user_id)
-
-@router.put("/{user_id}", response_model=UserResponse, status_code=status.HTTP_200_OK)
-def update_profile(user_id: str, payload: UserUpdate):
-    return update_user_profile(user_id, payload)
-
-@router.get("/{user_id}", response_model=UserResponse)
-def get_user_profile_endpoint(user_id: str):
-    """
-    GET /api/v1/users/{user_id}
-    Used by profile-management + error-handling tests.
-    """
-    return get_user_profile(user_id)
-    
-@router.put("/{user_id}", response_model=UserResponse)
-def update_user_profile_endpoint(user_id: str, payload: UserUpdate):
-    """
-    PUT /api/v1/users/{user_id}
-    Updates username / email / password.
-    """
-    return update_user_profile(user_id, payload)
-
 
 @router.post("/{user_id}/saved-items/{product_id}")
 def save_item_user(user_id: str, product_id: str):
@@ -193,4 +169,22 @@ def get_recommendations_endpoint(
 ):
     """Get personalized product recommendations based on user's browsing history"""
     return get_recommendations(user_id, limit=limit, exclude_product_id=exclude_product_id)
+
+
+# Profile routes - MUST come after all specific /{user_id}/... routes
+@router.get("/{user_id}", response_model=UserResponse, status_code=status.HTTP_200_OK)
+def get_user_profile_endpoint(user_id: str):
+    """
+    GET /api/v1/users/{user_id}
+    Get user profile information
+    """
+    return get_user_profile(user_id)
+
+@router.put("/{user_id}", response_model=UserResponse, status_code=status.HTTP_200_OK)
+def update_user_profile_endpoint(user_id: str, payload: UserUpdate):
+    """
+    PUT /api/v1/users/{user_id}
+    Update user profile (username, email, password)
+    """
+    return update_user_profile(user_id, payload)
 
