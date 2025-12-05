@@ -19,8 +19,34 @@ async function getProduct(productId: string) {
   return res.json();
 }
 
+//Get the live price from amazon usint the product link
+async function getLivePrice(amazonURL: string){
+  if(amazonURL === null || amazonURL === undefined){return null;}
+  const res = await fetch(amazonURL, {
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:145.0) Gecko/20100101 Firefox/145.0',
+        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+        'Accept-Language': 'en-US,en;q=0.5',
+        'Alt-Used': 'www.amazon.in',
+        'Connection': 'close'
+      },
+    });
+  if (!res.ok){console.log("live price not OK");return null;}
+
+  const html = await res.text();
+  //Parse HTML to get the price. It is held in a span with Class "a-price-whole"
+
+  const spanRegex = /<span[^>]*class="[^"]*a-price-whole[^"]*"[^>]*>([^<]*)<\/span>/i;
+  const match = html.match(spanRegex);
+  if(!match === null){
+    console.log("Live price: ", match[1]);
+    return(match[1]);}
+  console.log("Null live price");
+  return null;
+}
+
 export default async function ProductPage({ params, searchParams }: PageProps) {
-    const sp = await searchParams;
+  const sp = await searchParams;
   const productId = Array.isArray(sp.id) ? sp.id[0] : sp.id;
 
   if (!productId) {
@@ -46,6 +72,8 @@ export default async function ProductPage({ params, searchParams }: PageProps) {
 
   const product = await getProduct(productId);
 
+  const live_price = await getLivePrice(product.product_link);
+  
   if (!product) {
     return (
       <div className="min-h-screen bg-slate-50 dark:bg-slate-900 flex flex-col">
@@ -83,6 +111,7 @@ export default async function ProductPage({ params, searchParams }: PageProps) {
   const fullStars = Math.floor(product.rating);
   const hasHalfStar = product.rating % 1 >= 0.5;
 
+  
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-900 flex flex-col">
       <Header />
@@ -180,6 +209,9 @@ export default async function ProductPage({ params, searchParams }: PageProps) {
                       </span>
                     </>
                   )}
+                  <span className="text-3xl font-bold text-green dark:text-green">
+                    Live Price: ₹{live_price}
+                  </span>
                 </div>
               </div>
 
