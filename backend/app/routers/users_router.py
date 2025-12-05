@@ -30,6 +30,8 @@ from app.services.user_service import (
     get_recently_viewed_products
 )
 from app.services.token_service import invalidate_token
+from app.services.recommendation_service import get_recommendations
+
 # Router for all user-related endpoints
 # Includes authentication (register/login/logout), profile management, and saved items
 router = APIRouter(
@@ -153,4 +155,42 @@ def get_recently_viewed_endpoint(
     ),
 ):
     return get_recently_viewed_products(user_id, limit=limit)
+
+
+# Alias endpoints for frontend compatibility (frontend calls view-history)
+@router.post(
+    "/{user_id}/view-history/{product_id}",
+    summary="Track product view (alias for recently-viewed)",
+)
+def track_view_history_endpoint(user_id: str, product_id: str):
+    """Alias for recently-viewed POST endpoint - frontend compatibility"""
+    rv_ids = add_recently_viewed(user_id, product_id)
+    return {"user_id": user_id, "recently_viewed_ids": rv_ids}
+
+
+@router.get(
+    "/{user_id}/view-history",
+    response_model=List[Product],
+    summary="Get view history (alias for recently-viewed)",
+)
+def get_view_history_endpoint(
+    user_id: str,
+    limit: int = Query(4, ge=1, le=20),
+):
+    """Alias for recently-viewed GET endpoint - frontend compatibility"""
+    return get_recently_viewed_products(user_id, limit=limit)
+
+
+@router.get(
+    "/{user_id}/recommendations",
+    response_model=List[Product],
+    summary="Get product recommendations based on viewing history",
+)
+def get_recommendations_endpoint(
+    user_id: str,
+    exclude_product_id: str = Query(None, description="Product ID to exclude from recommendations"),
+    limit: int = Query(8, ge=1, le=20, description="Max recommendations to return"),
+):
+    """Get personalized product recommendations based on user's browsing history"""
+    return get_recommendations(user_id, limit=limit, exclude_product_id=exclude_product_id)
 
