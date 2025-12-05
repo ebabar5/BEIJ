@@ -3,8 +3,7 @@
 import { useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
-
-const API_BASE = "http://localhost:8000/api/v1";
+import { API_BASE } from "../../context/APIAddress";
 
 export default function ResetPasswordPage() {
   const router = useRouter();

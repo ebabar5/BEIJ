@@ -4,6 +4,8 @@ import Footer from "../components/Footer";
 import ProductActions from "../components/ProductActions";
 import ProductViewTracker from "./ProductViewTracker";
 import Recommendations from "../components/Recommendations";
+import LivePriceButton from "../components/LivePriceButton";
+import { BackendAddress } from "../context/APIAddress";
 import RecordProductView from "../components/RecordProductView";
 import { API_BASE } from "../lib/api";
 
@@ -24,7 +26,7 @@ async function getProduct(productId: string) {
 }
 
 export default async function ProductPage({ params, searchParams }: PageProps) {
-    const sp = await searchParams;
+  const sp = await searchParams;
   const productId = Array.isArray(sp.id) ? sp.id[0] : sp.id;
 
   if (!productId) {
@@ -50,6 +52,7 @@ export default async function ProductPage({ params, searchParams }: PageProps) {
 
   const product = await getProduct(productId);
 
+  // FIX: Check if product exists BEFORE trying to access product_link
   if (!product) {
     return (
       <div className="min-h-screen bg-slate-50 dark:bg-slate-900 flex flex-col">
@@ -71,6 +74,8 @@ export default async function ProductPage({ params, searchParams }: PageProps) {
     );
   }
 
+  // Now safe to access product properties
+
   // Format the about text
   const formattedAbout = product.about_product
     ?.replaceAll(";", "\n")
@@ -87,6 +92,7 @@ export default async function ProductPage({ params, searchParams }: PageProps) {
   const fullStars = Math.floor(product.rating);
   const hasHalfStar = product.rating % 1 >= 0.5;
 
+  
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-900 flex flex-col">
       <Header />
@@ -188,6 +194,8 @@ export default async function ProductPage({ params, searchParams }: PageProps) {
                     </>
                   )}
                 </div>
+                {/* Live price button - fetches price on click */}
+                <LivePriceButton amazonURL={product.product_link} />
               </div>
 
               {/* Action Buttons */}

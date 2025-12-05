@@ -2,6 +2,7 @@
 
 import { createContext, useContext, useState, useEffect, ReactNode } from "react";
 import { getSavedItems, saveItem, unsaveItem } from "../lib/api";
+import { BackendAddress } from "./APIAddress";
 
 // Types for our auth system
 export interface User {
@@ -34,8 +35,6 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 const TOKEN_KEY = "beij_auth_token";
 const USER_KEY = "beij_auth_user";
 
-// API base URL
-const API_BASE = "http://host.docker.internal:8000/api/v1";
 
 // Provider component
 export function AuthProvider({ children }: { children: ReactNode }) {
@@ -98,7 +97,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     // Call logout API to invalidate token on server
     if (currentToken) {
       try {
-        await fetch(`${API_BASE}/users/logout`, {
+        await fetch(`${BackendAddress()}/users/logout`, {
           method: "POST",
           headers: {
             "Authorization": `Bearer ${currentToken}`,

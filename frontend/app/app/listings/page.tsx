@@ -4,14 +4,13 @@ import Footer from "../components/Footer";
 import ProductCard from "../components/ProductCard";
 import FilterSidebar from "../components/FilterSidebar";
 import SortDropdown from "../components/SortDropdown";
-
-const API_BASE = "http://host.docker.internal:8000/api/v1";
+import { BackendAddress } from "../context/APIAddress";
 
 // Fetch all products with full data (includes images)
 async function getProducts(sortBy?: string) {
   const url = sortBy 
-    ? `${API_BASE}/products/?sort_by=${sortBy}`
-    : `${API_BASE}/products/`;
+    ? `${BackendAddress()}/products/?sort_by=${sortBy}`
+    : `${BackendAddress()}/products/`;
   
   const res = await fetch(url, { cache: "no-store" });
   if (!res.ok) {
